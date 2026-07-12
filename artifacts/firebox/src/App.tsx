@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, createContext, useContext, useMemo 
 import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
-  Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles
+  Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight
 } from "lucide-react";
 
 // --- DATA ---
