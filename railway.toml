@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+buildCommand = "pnpm install && BASE_PATH=/ pnpm --filter @workspace/firebox run build && pnpm --filter @workspace/api-server run build"
+
+[deploy]
+startCommand = "node artifacts/api-server/dist/index.mjs"
+healthcheckPath = "/api/healthz"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
