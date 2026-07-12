@@ -33,8 +33,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-// Serve the built frontend in production
-const frontendDist = process.env.FRONTEND_DIST_PATH ?? path.join(process.cwd(), "artifacts/firebox/dist/public");
+// Serve the built frontend in production.
+// __dirname is injected by esbuild and resolves to artifacts/api-server/dist/,
+// so ../../firebox/dist/public is always correct regardless of CWD.
+const frontendDist = process.env.FRONTEND_DIST_PATH ?? path.join(__dirname, "../../firebox/dist/public");
 if (existsSync(frontendDist)) {
   app.use(express.static(frontendDist));
   // SPA fallback — let the frontend router handle unknown paths
