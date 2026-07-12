@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Firebox"
+version = "1.0.0"
+id = "artifacts/firebox"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25578
+
+[services.development]
+run = "pnpm --filter @workspace/firebox run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/firebox", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/firebox/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25578"
+BASE_PATH = "/"

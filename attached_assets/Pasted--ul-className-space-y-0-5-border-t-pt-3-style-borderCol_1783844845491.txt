@@ -1,0 +1,102 @@
+<ul className="space-y-0.5 border-t pt-3" style={{ borderColor: "inherit" }}>
+            <li>
+              <button
+                onClick={() => {
+                  setActiveNav("settings");
+                  closeMobile();
+                }}
+                className={cx(
+                  "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
+                  activeNav === "settings" ? "text-white" : cx(c.textMuted, c.surfaceHover)
+                )}
+                style={activeNav === "settings" ? { backgroundColor: "#FF6B35" } : undefined}
+              >
+                <Settings size={17} strokeWidth={2} />
+                Settings
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <div className={cx("border-t px-5 py-4", c.border)}>
+          <div className="flex items-center gap-2">
+            <FireboxMark size={16} />
+            <span className={cx("text-xs font-medium", c.textMuted)}>Firebox</span>
+          </div>
+          <p className={cx("mt-1 text-[11px]", c.textFaint)}>Version 2.4.0</p>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+/* ----------------------------------------------------------------------- */
+/*  Topbar                                                                   */
+/* ----------------------------------------------------------------------- */
+
+const NOTIFICATIONS = [
+  { id: 1, text: "CodeVault beta invites are live for waitlisted users." },
+  { id: 2, text: "Commandline AI added new script templates." },
+  { id: 3, text: "MindForge AI is joining Firebox soon." },
+];
+
+function Topbar({ query, setQuery, openMobile, showToast }) {
+  const { c, theme, toggleTheme } = useUI();
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [unread, setUnread] = useState(NOTIFICATIONS.length);
+  const notifRef = useRef(null);
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+    function onClick(e) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  return (
+    <header
+      className={cx(
+        "sticky top-0 z-30 flex items-center gap-3 border-b px-4 py-3.5 backdrop-blur-md sm:px-6",
+        c.topbarBg,
+        c.border
+      )}
+    >
+      <button onClick={openMobile} className={cx("rounded-lg p-2 lg:hidden", c.surfaceHover)}>
+        <Menu size={20} className={c.text} />
+      </button>
+
+      <div className="relative flex-1 max-w-2xl">
+        <Search
+          size={18}
+          className={cx("pointer-events-none absolute left-4 top-1/2 -translate-y-1/2", c.textMuted)}
+        />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="What do you need today?"
+          className={cx(
+            "w-full rounded-2xl border py-3 pl-11 pr-11 text-sm outline-none transition-shadow duration-200",
+            c.surface,
+            c.border,
+            c.text,
+            "placeholder:text-current",
+            "focus:shadow-[0_0_0_4px_rgba(255,107,53,0.15)] focus:border-[#FF6B35]"
+          )}
+        />
+        {query ? (
+          <button
+            onClick={() => setQuery("")}
+            className={cx("absolute right-3.5 top-1/2 -translate-y-1/2 rounded-full p-1", c.surfaceHover)}
+          >
+            <X size={14} className={c.textMuted} />
+          </button>
+        ) : (
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 animate-flicker">
+            <FireboxMark size={15} />
+          </span>
+        )}
+      </div>

@@ -1,0 +1,111 @@
+"Smart reminders",
+      "Shared team spaces",
+      "Daily planning view",
+    ],
+  },
+  {
+    id: "mindforge",
+    name: "MindForge AI",
+    tagline: "Your everyday AI assistant",
+    description:
+      "A general-purpose AI assistant for writing, research, and everyday questions, coming soon to Firebox.",
+    category: "AI",
+    status: "Coming Soon",
+    icon: Sparkles,
+    keywords: ["ai assistant", "chatgpt alternative", "ai chat"],
+    popular: false,
+    recent: false,
+    features: [
+      "Conversational writing help",
+      "Document summaries",
+      "Research with citations",
+      "Custom assistants",
+    ],
+  },
+  {
+    id: "devpipe",
+    name: "DevPipe",
+    tagline: "Continuous integration, simplified",
+    description: "Build, test, and deploy pipelines that connect directly to CodeVault, coming soon.",
+    category: "Development",
+    status: "Coming Soon",
+    icon: GitBranch,
+    keywords: ["ci", "cd", "pipeline", "deploy", "build"],
+    popular: false,
+    recent: false,
+    features: [
+      "Visual pipeline builder",
+      "Parallel test runs",
+      "Native CodeVault integration",
+      "Deploy previews for every branch",
+    ],
+  },
+];
+
+const NAV_ITEMS = [
+  { key: "home", label: "Home", icon: Home },
+  { key: "explore", label: "Explore", icon: Compass },
+  { key: "categories", label: "Categories", icon: LayoutGrid },
+  { key: "all", label: "All Services", icon: Layers },
+  { key: "recent", label: "Recently Added", icon: Clock },
+  { key: "popular", label: "Popular Services", icon: TrendingUp },
+  { key: "favorites", label: "Favorites", icon: Star },
+  { key: "comingsoon", label: "Coming Soon", icon: Sparkles },
+];
+
+const NAV_TITLES = {
+  home: "All services",
+  explore: "Explore Firebox",
+  all: "All services",
+  recent: "Recently added",
+  popular: "Popular services",
+  favorites: "Your favorites",
+  comingsoon: "Coming soon",
+};
+
+const NAV_EMPTY = {
+  favorites: "Star a service to find it here fast.",
+  recent: "Nothing new to show right now — check back soon.",
+  popular: "Popularity data is still warming up.",
+  comingsoon: "Nothing queued up right now.",
+};
+
+/* ----------------------------------------------------------------------- */
+/*  Theme / UI context                                                      */
+/* ----------------------------------------------------------------------- */
+
+const UIContext = createContext(null);
+const useUI = () => useContext(UIContext);
+
+function buildTokens(isDark) {
+  return {
+    isDark,
+    appBg: isDark ? "bg-[#0B0D10]" : "bg-[#FAFAF8]",
+    sidebarBg: isDark ? "bg-[#0E1013]" : "bg-white",
+    topbarBg: isDark ? "bg-[#0B0D10]/85" : "bg-[#FAFAF8]/85",
+    surface: isDark ? "bg-[#14171B]" : "bg-white",
+    surfaceAlt: isDark ? "bg-[#181B20]" : "bg-[#F5F4F1]",
+    surfaceHover: isDark ? "hover:bg-[#1C2025]" : "hover:bg-[#F3F2EE]",
+    border: isDark ? "border-[#22262B]" : "border-[#E7E5E0]",
+    borderStrong: isDark ? "border-[#2C3138]" : "border-[#D8D6CF]",
+    text: isDark ? "text-[#F2F1ED]" : "text-[#16181C]",
+    textMuted: isDark ? "text-[#8A8F98]" : "text-[#6B6F76]",
+    textFaint: isDark ? "text-[#565A61]" : "text-[#9A9DA3]",
+    accent: "#FF6B35",
+    accentSoft: isDark ? "bg-[#FF6B35]/10" : "bg-[#FF6B35]/10",
+  };
+}
+
+/* ----------------------------------------------------------------------- */
+/*  Small building blocks                                                   */
+/* ----------------------------------------------------------------------- */
+
+function cx(...parts) {
+  return parts.filter(Boolean).join(" ");
+}
+
+function FireboxMark({ size = 22 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="fireboxGradient" x1="4" y1="30" x2="26" y2="2" gradientUnits="userSpaceOnUse">

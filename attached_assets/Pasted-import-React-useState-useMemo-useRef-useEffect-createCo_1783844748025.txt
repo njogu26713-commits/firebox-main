@@ -1,0 +1,114 @@
+import React, { useState, useMemo, useRef, useEffect, createContext, useContext } from "react";
+import {
+  Search, Bell, User, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
+  Star, Settings, Menu, X, ChevronRight, ChevronLeft, Sun, Moon, Check,
+  Lock, ArrowRight, MessageCircle, Film, Handshake, Code2, Terminal, Contact,
+  FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles,
+} from "lucide-react";
+
+/* ----------------------------------------------------------------------- */
+/*  Data                                                                    */
+/* ----------------------------------------------------------------------- */
+
+const CATEGORY_COLORS = {
+  AI: "#8B5CF6",
+  Communication: "#38BDF8",
+  Entertainment: "#F472B6",
+  Development: "#34D399",
+  Business: "#FBBF24",
+  Productivity: "#A3E635",
+  Utilities: "#94A3B8",
+  Media: "#22D3EE",
+};
+
+const CATEGORIES = Object.keys(CATEGORY_COLORS);
+
+const SERVICES = [
+  {
+    id: "firebox-bot",
+    name: "Firebox Bot",
+    tagline: "Automate WhatsApp conversations",
+    description:
+      "Build and deploy WhatsApp bots that answer, route, and follow up with customers automatically, no code required.",
+    category: "Communication",
+    status: "Available",
+    icon: MessageCircle,
+    keywords: ["whatsapp bot", "whatsapp", "chatbot", "automation", "auto reply"],
+    popular: true,
+    recent: false,
+    features: [
+      "Drag-and-drop conversation builder",
+      "Auto-replies with business-hours logic",
+      "Broadcast messages to saved contacts",
+      "Live handover to a human agent",
+    ],
+  },
+  {
+    id: "cinevault",
+    name: "CineVault",
+    tagline: "Stream movies and shows",
+    description:
+      "A growing library of movies and series, organized, recommended, and ready to watch across every device.",
+    category: "Entertainment",
+    status: "Available",
+    icon: Film,
+    keywords: ["movie", "movies", "streaming", "watch", "film", "tv shows", "series"],
+    popular: true,
+    recent: false,
+    features: [
+      "Continue watching across devices",
+      "Curated collections by mood and genre",
+      "Offline downloads",
+      "Personalized recommendations",
+    ],
+  },
+  {
+    id: "bconnect",
+    name: "BConnect",
+    tagline: "Find partners, clients, and deals",
+    description:
+      "A marketplace and networking space for businesses to list services, discover partners, and close deals.",
+    category: "Business",
+    status: "Available",
+    icon: Handshake,
+    keywords: ["marketplace", "business", "networking", "partners", "deals", "clients"],
+    popular: false,
+    recent: false,
+    features: [
+      "Verified business profiles",
+      "Direct messaging with partners",
+      "Deal and proposal tracking",
+      "Industry-specific discovery feed",
+    ],
+  },
+  {
+    id: "codevault",
+    name: "CodeVault",
+    tagline: "Host and ship your code",
+    description:
+      "Private and public repositories, pull requests, and lightweight CI, built for small teams that move fast.",
+    category: "Development",
+    status: "Beta",
+    icon: Code2,
+    keywords: ["code hosting", "git", "repository", "repo", "version control", "ci"],
+    popular: false,
+    recent: true,
+    features: [
+      "Unlimited private repositories",
+      "Built-in code review",
+      "One-click deploy previews",
+      "Issue tracking and boards",
+    ],
+  },
+  {
+    id: "commandline-ai",
+    name: "Commandline AI",
+    tagline: "An AI assistant for your terminal",
+    description:
+      "Ask questions, generate scripts, and debug errors without leaving the command line.",
+    category: "AI",
+    status: "Available",
+    icon: Terminal,
+    keywords: ["ai assistant", "ai", "chatbot", "terminal ai", "command line", "debug"],
+    popular: true,
+    recent: true,
