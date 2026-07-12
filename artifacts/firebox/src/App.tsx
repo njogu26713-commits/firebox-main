@@ -3,7 +3,7 @@ import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
   Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight,
-  ShieldCheck, Plus, Pencil, Trash2, BarChart2
+  Plus, Pencil, Trash2, BarChart2
 } from "lucide-react";
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -393,16 +393,6 @@ function Sidebar({ activeNav, setActiveNav, mobileOpen, closeMobile }: {
           <ul className="space-y-0.5">
             <li>
               <button
-                onClick={() => { setActiveNav("admin"); closeMobile(); }}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${activeNav === "admin" ? "text-white shadow-sm" : `${c.textMuted} ${c.surfaceHover}`}`}
-                style={activeNav === "admin" ? { backgroundColor: "#FF6B35" } : undefined}
-              >
-                <ShieldCheck size={17} strokeWidth={2} />
-                Admin
-              </button>
-            </li>
-            <li>
-              <button
                 onClick={() => { setActiveNav("settings"); closeMobile(); }}
                 className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${activeNav === "settings" ? "text-white shadow-sm" : `${c.textMuted} ${c.surfaceHover}`}`}
                 style={activeNav === "settings" ? { backgroundColor: "#FF6B35" } : undefined}
@@ -645,7 +635,9 @@ function MainApp() {
     () => (localStorage.getItem("firebox-theme") as "dark" | "light") || "dark"
   );
   
-  const [activeNav, setActiveNav] = useState("home");
+  const [activeNav, setActiveNav] = useState(() =>
+    window.location.hash === "#admin" ? "admin" : "home"
+  );
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
