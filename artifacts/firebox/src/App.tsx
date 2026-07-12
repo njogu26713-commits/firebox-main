@@ -2,8 +2,22 @@ import React, { useState, useEffect, useRef, createContext, useContext, useMemo 
 import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
-  Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight
+  Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight,
+  ShieldCheck, Plus, Pencil, Trash2, BarChart2
 } from "lucide-react";
+
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import {
+  useListServices, useGetAdminStats, useCreateService, useUpdateService, useDeleteService,
+  getListServicesQueryKey, getGetAdminStatsQueryKey
+} from "@workspace/api-client-react";
+
+const queryClient = new QueryClient();
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  MessageCircle, Film, Handshake, Code2, Terminal, Contact, FileText,
+  KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles,
+};
 
 // --- DATA ---
 const CATEGORY_COLORS = {
@@ -225,6 +239,7 @@ const NAV_TITLES: Record<string, string> = {
   comingsoon: "Coming soon",
   categories: "Categories",
   settings: "Settings",
+  admin: "Admin Dashboard",
 };
 
 const NAV_EMPTY: Record<string, string> = {
@@ -376,6 +391,16 @@ function Sidebar({ activeNav, setActiveNav, mobileOpen, closeMobile }: {
           <div className={`my-4 h-px ${c.border}`} style={{ margin: "16px 0", borderTop: "1px solid currentColor", opacity: 0.15 }} />
 
           <ul className="space-y-0.5">
+            <li>
+              <button
+                onClick={() => { setActiveNav("admin"); closeMobile(); }}
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${activeNav === "admin" ? "text-white shadow-sm" : `${c.textMuted} ${c.surfaceHover}`}`}
+                style={activeNav === "admin" ? { backgroundColor: "#FF6B35" } : undefined}
+              >
+                <ShieldCheck size={17} strokeWidth={2} />
+                Admin
+              </button>
+            </li>
             <li>
               <button
                 onClick={() => { setActiveNav("settings"); closeMobile(); }}
@@ -615,7 +640,7 @@ function ServiceDetailModal({ service, close, isFavorite, toggleFavorite }: any)
 
 // --- MAIN APP ---
 
-function App() {
+function MainApp() {
   const [theme, setTheme] = useState<"dark" | "light">(
     () => (localStorage.getItem("firebox-theme") as "dark" | "light") || "dark"
   );
@@ -633,6 +658,9 @@ function App() {
   const [toastMsg, setToastMsg] = useState("");
 
   const c = useMemo(() => buildTokens(theme === "dark"), [theme]);
+
+  const { data: apiServices = [], isLoading: servicesLoading } = useListServices();
+  const services = useMemo(() => apiServices.map(s => ({ ...s, icon: ICON_MAP[s.iconName] ?? Sparkles })), [apiServices]);
 
   useEffect(() => {
     localStorage.setItem("firebox-theme", theme);
@@ -658,7 +686,7 @@ function App() {
   };
 
   const displayedServices = useMemo(() => {
-    let list = SERVICES;
+    let list = services;
     
     // Apply nav filter
     switch (activeNav) {
@@ -677,7 +705,7 @@ function App() {
     // Apply search filter
     if (query.trim()) {
       const q = query.toLowerCase();
-      list = SERVICES.filter(s => 
+      list = services.filter(s => 
         s.name.toLowerCase().includes(q) || 
         s.tagline.toLowerCase().includes(q) || 
         s.description.toLowerCase().includes(q) ||
@@ -686,9 +714,9 @@ function App() {
     }
     
     return list;
-  }, [activeNav, query, favorites]);
+  }, [activeNav, query, favorites, services]);
 
-  const selectedService = SERVICES.find(s => s.id === selectedServiceId);
+  const selectedService = services.find(s => s.id === selectedServiceId);
 
   return (
     <UIContext.Provider value={{ theme, toggleTheme, c }}>
@@ -731,12 +759,14 @@ function App() {
             )}
 
             {/* Categories View */}
-            {activeNav === "categories" && !query ? (
+            {activeNav === "admin" && !query ? (
+              <AdminView services={services} servicesLoading={servicesLoading} />
+            ) : activeNav === "categories" && !query ? (
               <div className="animate-fadeSlide">
                 <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-8">Categories</h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {CATEGORIES.map(cat => {
-                    const count = SERVICES.filter(s => s.category === cat).length;
+                    const count = services.filter(s => s.category === cat).length;
                     const color = CATEGORY_COLORS[cat as keyof typeof CATEGORY_COLORS];
                     return (
                       <div 
@@ -813,7 +843,9 @@ function App() {
                       Trending right now
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {SERVICES.filter(s => s.popular).slice(0, 3).map(service => (
+                      {servicesLoading ? (
+                        [...Array(3)].map((_, i) => <div key={i} className={`h-40 rounded-2xl border ${c.border} animate-pulse bg-black/5 dark:bg-white/5`} />)
+                      ) : services.filter(s => s.popular).slice(0, 3).map(service => (
                         <ServiceCard 
                           key={service.id} 
                           service={service} 
@@ -828,7 +860,11 @@ function App() {
                   </div>
                 )}
 
-                {displayedServices.length > 0 ? (
+                {servicesLoading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-4">
+                    {[...Array(8)].map((_, i) => <div key={i} className={`h-40 rounded-2xl border ${c.border} animate-pulse bg-black/5 dark:bg-white/5`} />)}
+                  </div>
+                ) : displayedServices.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                     {displayedServices.map(service => (
                       <ServiceCard 
@@ -890,4 +926,331 @@ function App() {
   );
 }
 
-export default App;
+function AdminView({ services, servicesLoading }: { services: any[], servicesLoading: boolean }) {
+  const { c } = useUI();
+  const queryClient = useQueryClient();
+  const { data: stats, isLoading: statsLoading } = useGetAdminStats();
+  
+  const createMutation = useCreateService({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListServicesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() });
+        setModalOpen(false);
+      }
+    }
+  });
+
+  const updateMutation = useUpdateService({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListServicesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() });
+        setModalOpen(false);
+      }
+    }
+  });
+
+  const deleteMutation = useDeleteService({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListServicesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() });
+      }
+    }
+  });
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingService, setEditingService] = useState<any>(null);
+  
+  const openAdd = () => {
+    setEditingService(null);
+    setModalOpen(true);
+  };
+  
+  const openEdit = (service: any) => {
+    setEditingService(service);
+    setModalOpen(true);
+  };
+  
+  return (
+    <div className="animate-fadeSlide">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Admin Dashboard</h1>
+        <button 
+          onClick={openAdd}
+          className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#FF5A1F] transition-colors"
+        >
+          <Plus size={18} />
+          Add Service
+        </button>
+      </div>
+      
+      {/* Stats row */}
+      {statsLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+           {[...Array(6)].map((_, i) => (
+             <div key={i} className={`h-24 rounded-2xl border ${c.border} ${c.surface} animate-pulse bg-black/5 dark:bg-white/5`} />
+           ))}
+        </div>
+      ) : stats ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+           <StatCard title="Total" value={stats.total} icon={BarChart2} color={c.text} />
+           <StatCard title="Available" value={stats.available} color="#34D399" dot />
+           <StatCard title="Beta" value={stats.beta} color="#FBBF24" dot />
+           <StatCard title="Coming Soon" value={stats.comingSoon} color="#94A3B8" dot />
+           <StatCard title="Recent" value={stats.recentCount} />
+           <StatCard title="Popular" value={stats.popularCount} />
+        </div>
+      ) : null}
+
+      {/* Services Table */}
+      <div className={`rounded-2xl border ${c.border} ${c.surface} overflow-hidden`}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className={`border-b ${c.border} bg-black/5 dark:bg-white/5`}>
+              <tr>
+                <th className="px-5 py-3 font-medium">Service</th>
+                <th className="px-5 py-3 font-medium">Category</th>
+                <th className="px-5 py-3 font-medium">Status</th>
+                <th className="px-5 py-3 font-medium">Highlights</th>
+                <th className="px-5 py-3 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-inherit">
+              {servicesLoading ? (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-muted">Loading services...</td>
+                </tr>
+              ) : services.map(service => {
+                const Icon = service.icon || Sparkles;
+                const color = CATEGORY_COLORS[service.category as keyof typeof CATEGORY_COLORS] || "#94A3B8";
+                return (
+                  <tr key={service.id} className={`transition-colors ${c.surfaceHover} group`}>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: color + "1A", color }}>
+                          <Icon size={20} strokeWidth={2} />
+                        </div>
+                        <div>
+                          <p className="font-semibold">{service.name}</p>
+                          <p className={`text-xs ${c.textMuted} line-clamp-1`}>{service.tagline}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4"><CategoryBadge category={service.category} /></td>
+                    <td className="px-5 py-4"><StatusBadge status={service.status} /></td>
+                    <td className="px-5 py-4">
+                       <div className="flex items-center gap-2">
+                         {service.popular && <span className="flex items-center gap-1 text-[11px] font-medium text-[#FF6B35] bg-[#FF6B35]/10 px-2 py-0.5 rounded-full"><TrendingUp size={10} /> Popular</span>}
+                         {service.recent && <span className="flex items-center gap-1 text-[11px] font-medium text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-full"><Clock size={10} /> Recent</span>}
+                       </div>
+                    </td>
+                    <td className="px-5 py-4 text-right">
+                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button onClick={() => openEdit(service)} className={`p-1.5 rounded-lg ${c.surfaceHover} text-blue-500`}><Pencil size={16} /></button>
+                         <DeleteButton onDelete={() => deleteMutation.mutate({ id: service.id })} c={c} />
+                       </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {modalOpen && (
+        <AdminServiceModal 
+          service={editingService} 
+          close={() => setModalOpen(false)} 
+          onSave={(data: any) => {
+            if (editingService) {
+              updateMutation.mutate({ id: editingService.id, data });
+            } else {
+              createMutation.mutate({ data });
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function StatCard({ title, value, icon: Icon, color, dot }: any) {
+  const { c } = useUI();
+  return (
+    <div className={`flex flex-col justify-center rounded-2xl border p-4 ${c.surface} ${c.border}`}>
+       <div className="flex items-center gap-2 mb-2">
+         {Icon && <Icon size={16} color={color || c.textMuted} />}
+         {dot && <StatusDot color={color} />}
+         <span className={`text-xs font-medium uppercase tracking-wider ${c.textMuted}`}>{title}</span>
+       </div>
+       <p className="text-2xl font-bold">{value || 0}</p>
+    </div>
+  );
+}
+
+function DeleteButton({ onDelete, c }: { onDelete: () => void; c: any }) {
+  const [confirm, setConfirm] = useState(false);
+  useEffect(() => {
+    if (confirm) {
+      const t = setTimeout(() => setConfirm(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [confirm]);
+
+  if (confirm) {
+    return (
+      <button onClick={onDelete} className={`px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors`}>
+        Confirm?
+      </button>
+    );
+  }
+  return (
+    <button onClick={() => setConfirm(true)} className={`p-1.5 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors`}>
+      <Trash2 size={16} />
+    </button>
+  );
+}
+
+function AdminServiceModal({ service, close, onSave }: any) {
+  const { c } = useUI();
+  const [formData, setFormData] = useState({
+    id: service?.id || "",
+    name: service?.name || "",
+    tagline: service?.tagline || "",
+    description: service?.description || "",
+    category: service?.category || "Utilities",
+    status: service?.status || "Available",
+    iconName: service?.iconName || "Sparkles",
+    popular: service?.popular || false,
+    recent: service?.recent || false,
+    features: service?.features?.join("\n") || "",
+    keywords: service?.keywords?.join(", ") || "",
+  });
+
+  const handleChange = (e: any) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev: any) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = {
+      ...formData,
+      features: formData.features.split("\n").map((f: string) => f.trim()).filter(Boolean),
+      keywords: formData.keywords.split(",").map((k: string) => k.trim()).filter(Boolean),
+    };
+    onSave(payload);
+  };
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = "unset"; };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={close} />
+      
+      <div className={`relative w-full max-w-2xl overflow-hidden rounded-3xl border shadow-2xl animate-fadeSlide ${c.surface} ${c.border} flex flex-col max-h-[90vh]`}>
+        <div className={`px-6 py-5 border-b ${c.border} flex items-center justify-between shrink-0`}>
+          <h2 className="text-xl font-bold">{service ? "Edit Service" : "Add Service"}</h2>
+          <button onClick={close} className={`p-2 rounded-full transition-colors ${c.surfaceHover}`}>
+            <X size={20} className={c.textMuted} />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto">
+          <form id="admin-service-form" onSubmit={handleSubmit} className="space-y-5">
+            {!service && (
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>ID (Slug)</label>
+                <input required name="id" value={formData.id} onChange={handleChange} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35]`} placeholder="my-service-slug" />
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Name</label>
+                <input required name="name" value={formData.name} onChange={handleChange} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35]`} />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Tagline</label>
+                <input required name="tagline" value={formData.tagline} onChange={handleChange} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35]`} />
+              </div>
+            </div>
+            
+            <div>
+              <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Description</label>
+              <textarea required name="description" value={formData.description} onChange={handleChange} rows={3} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35] resize-none`} />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Category</label>
+                <select name="category" value={formData.category} onChange={handleChange} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35] appearance-none`}>
+                  {CATEGORIES.map(c => <option key={c} value={c} className="text-black dark:text-white">{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Status</label>
+                <select name="status" value={formData.status} onChange={handleChange} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35] appearance-none`}>
+                  <option value="Available" className="text-black dark:text-white">Available</option>
+                  <option value="Beta" className="text-black dark:text-white">Beta</option>
+                  <option value="Coming Soon" className="text-black dark:text-white">Coming Soon</option>
+                </select>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Icon Name</label>
+                <select name="iconName" value={formData.iconName} onChange={handleChange} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35] appearance-none`}>
+                  {Object.keys(ICON_MAP).map(k => <option key={k} value={k} className="text-black dark:text-white">{k}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Features (One per line)</label>
+                <textarea name="features" value={formData.features} onChange={handleChange} rows={4} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35] resize-none`} placeholder="Feature 1\nFeature 2" />
+              </div>
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Keywords (Comma separated)</label>
+                <textarea name="keywords" value={formData.keywords} onChange={handleChange} rows={4} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35] resize-none`} placeholder="keyword1, keyword2" />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" name="popular" checked={formData.popular} onChange={handleChange} className="w-4 h-4 accent-[#FF6B35]" />
+                Popular
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" name="recent" checked={formData.recent} onChange={handleChange} className="w-4 h-4 accent-[#FF6B35]" />
+                Recent
+              </label>
+            </div>
+          </form>
+        </div>
+        
+        <div className={`px-6 py-5 border-t ${c.border} shrink-0 flex justify-end gap-3 bg-black/5 dark:bg-white/5`}>
+          <button type="button" onClick={close} className={`px-5 py-2.5 rounded-xl text-sm font-medium border ${c.border} ${c.surfaceHover}`}>Cancel</button>
+          <button type="submit" form="admin-service-form" className={`px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#FF6B35] hover:bg-[#FF5A1F] transition-colors`}>
+            {service ? "Save Changes" : "Create Service"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MainApp />
+    </QueryClientProvider>
+  );
+}

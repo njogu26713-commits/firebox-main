@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: services
+    description: Firebox services
+  - name: admin
+    description: Admin operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,156 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /services:
+    get:
+      operationId: listServices
+      tags: [services]
+      summary: List all services
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: popular
+          in: query
+          schema:
+            type: boolean
+        - name: recent
+          in: query
+          schema:
+            type: boolean
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      operationId: createService
+      tags: [admin]
+      summary: Create a new service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "201":
+          description: Created service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /services/{id}:
+    get:
+      operationId: getService
+      tags: [services]
+      summary: Get a service by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateService
+      tags: [admin]
+      summary: Update a service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceUpdate"
+      responses:
+        "200":
+          description: Updated service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteService
+      tags: [admin]
+      summary: Delete a service
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get admin dashboard stats
+      responses:
+        "200":
+          description: Admin stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +188,167 @@ components:
       required:
         - status
 
+    Service:
+      type: object
+      properties:
+        _id:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        tagline:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+          enum: [Available, Beta, "Coming Soon"]
+        iconName:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        popular:
+          type: boolean
+        recent:
+          type: boolean
+        features:
+          type: array
+          items:
+            type: string
+      required:
+        - _id
+        - id
+        - name
+        - tagline
+        - description
+        - category
+        - status
+        - iconName
+        - keywords
+        - popular
+        - recent
+        - features
+
+    ServiceInput:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        tagline:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+          enum: [Available, Beta, "Coming Soon"]
+        iconName:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        popular:
+          type: boolean
+        recent:
+          type: boolean
+        features:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - tagline
+        - description
+        - category
+        - status
+        - iconName
+        - keywords
+        - popular
+        - recent
+        - features
+
+    ServiceUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        tagline:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+          enum: [Available, Beta, "Coming Soon"]
+        iconName:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        popular:
+          type: boolean
+        recent:
+          type: boolean
+        features:
+          type: array
+          items:
+            type: string
+
+    AdminStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        available:
+          type: integer
+        beta:
+          type: integer
+        comingSoon:
+          type: integer
+        byCategory:
+          type: object
+          additionalProperties:
+            type: integer
+        recentCount:
+          type: integer
+        popularCount:
+          type: integer
+      required:
+        - total
+        - available
+        - beta
+        - comingSoon
+        - byCategory
+        - recentCount
+        - popularCount
+
+    DeleteResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        id:
+          type: string
+      required:
+        - success
+        - id
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
