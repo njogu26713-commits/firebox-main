@@ -1044,8 +1044,7 @@ function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
       {/* Header row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Tutorials</h1>
-          <p className={`mt-1 text-sm ${c.textMuted}`}>{tutorials.length} {tutorials.length === 1 ? "tutorial" : "tutorials"} available</p>
+          <p className={`text-sm ${c.textMuted}`}>{tutorials.length} {tutorials.length === 1 ? "tutorial" : "tutorials"} available</p>
         </div>
         {isAdmin && (
           <>
