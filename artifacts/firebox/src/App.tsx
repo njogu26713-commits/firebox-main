@@ -844,7 +844,7 @@ function MainApp() {
                   </div>
                 </div>
 
-                <p className={`text-center text-sm ${c.textFaint} mt-8`}>Firebox v2.4.0 • Built with Replit</p>
+                <p className={`text-center text-sm ${c.textFaint} mt-8`}>Firebox v2.4.0 • Made by Firebox Techs</p>
               </div>
             ) : (
               /* Normal Services Grid View */
