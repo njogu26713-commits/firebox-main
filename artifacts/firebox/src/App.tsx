@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, createContext, useContext, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
@@ -567,7 +568,7 @@ function ServiceDetailModal({ service, close, isFavorite, toggleFavorite }: any)
     return () => { document.body.style.overflow = "unset"; };
   }, []);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={close} />
       
@@ -626,7 +627,8 @@ function ServiceDetailModal({ service, close, isFavorite, toggleFavorite }: any)
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1148,7 +1150,7 @@ function AdminServiceModal({ service, close, onSave }: any) {
     return () => { document.body.style.overflow = "unset"; };
   }, []);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={close} />
       
@@ -1243,7 +1245,8 @@ function AdminServiceModal({ service, close, onSave }: any) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
