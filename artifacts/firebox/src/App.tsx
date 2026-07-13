@@ -4,7 +4,7 @@ import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
   Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight,
-  Plus, Pencil, Trash2, BarChart2
+  Plus, Pencil, Trash2, BarChart2, Bot, Send, User
 } from "lucide-react";
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -228,6 +228,7 @@ const NAV_ITEMS = [
   { key: "popular", label: "Popular Services", icon: TrendingUp },
   { key: "favorites", label: "Favorites", icon: Star },
   { key: "comingsoon", label: "Coming Soon", icon: Sparkles },
+  { key: "ai", label: "Ask AI", icon: Bot },
 ];
 
 const NAV_TITLES: Record<string, string> = {
@@ -241,6 +242,7 @@ const NAV_TITLES: Record<string, string> = {
   categories: "Categories",
   settings: "Settings",
   admin: "Admin Dashboard",
+  ai: "Ask AI",
 };
 
 const NAV_EMPTY: Record<string, string> = {
@@ -759,7 +761,9 @@ function MainApp() {
             )}
 
             {/* Categories View */}
-            {activeNav === "admin" && !query ? (
+            {activeNav === "ai" && !query ? (
+              <AIView />
+            ) : activeNav === "admin" && !query ? (
               <AdminView services={services} servicesLoading={servicesLoading} />
             ) : activeNav === "categories" && !query ? (
               <div className="animate-fadeSlide">
@@ -923,6 +927,136 @@ function MainApp() {
         )}
       </div>
     </UIContext.Provider>
+  );
+}
+
+function AIView() {
+  const { c } = useUI();
+  const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
+    { role: "ai", text: "Hi! I know everything about the services on Firebox. Ask me anything — what a service does, which one fits your needs, features, availability, and more." }
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
+  const sendMessage = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+    setInput("");
+    setMessages(prev => [...prev, { role: "user", text }]);
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/ai/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Request failed" }));
+        setMessages(prev => [...prev, { role: "ai", text: `⚠️ ${err.error ?? "Something went wrong."}` }]);
+        setLoading(false);
+        return;
+      }
+
+      // Stream SSE
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let aiText = "";
+      setMessages(prev => [...prev, { role: "ai", text: "" }]);
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6).trim();
+          if (data === "[DONE]") break;
+          try {
+            const { text: t, error } = JSON.parse(data);
+            if (error) { aiText += `⚠️ ${error}`; break; }
+            if (t) {
+              aiText += t;
+              setMessages(prev => {
+                const next = [...prev];
+                next[next.length - 1] = { role: "ai", text: aiText };
+                return next;
+              });
+            }
+          } catch {}
+        }
+      }
+    } catch {
+      setMessages(prev => [...prev, { role: "ai", text: "⚠️ Could not reach the AI service. Make sure the API server is running." }]);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="animate-fadeSlide flex flex-col h-[calc(100vh-8rem)] max-w-3xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]">
+          <Bot size={22} />
+        </div>
+        <div>
+          <h1 className={`text-2xl font-extrabold tracking-tight ${c.text}`}>Ask AI</h1>
+          <p className={`text-sm ${c.textMuted}`}>Powered by Groq · Knows your full service catalog</p>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className={`flex-1 overflow-y-auto rounded-2xl border ${c.border} ${c.surface} p-4 space-y-4 mb-4`}>
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${msg.role === "ai" ? "bg-[#FF6B35]/10 text-[#FF6B35]" : "bg-[#FF6B35] text-white"}`}>
+              {msg.role === "ai" ? <Bot size={16} /> : <User size={16} />}
+            </div>
+            <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+              msg.role === "ai"
+                ? `${c.surface} border ${c.border} ${c.text}`
+                : "bg-[#FF6B35] text-white"
+            }`}>
+              {msg.text || (loading && i === messages.length - 1 ? <span className="flex gap-1 py-1">{[0,1,2].map(d => <span key={d} className="h-1.5 w-1.5 rounded-full bg-current animate-bounce" style={{ animationDelay: `${d * 150}ms` }} />)}</span> : "")}
+            </div>
+          </div>
+        ))}
+        {loading && messages[messages.length - 1]?.role === "user" && (
+          <div className="flex gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FF6B35]/10 text-[#FF6B35]">
+              <Bot size={16} />
+            </div>
+            <div className={`rounded-2xl px-4 py-3 text-sm ${c.surface} border ${c.border}`}>
+              <span className="flex gap-1">{[0,1,2].map(d => <span key={d} className="h-1.5 w-1.5 rounded-full bg-[#FF6B35] animate-bounce" style={{ animationDelay: `${d * 150}ms` }} />)}</span>
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div className={`flex gap-2 rounded-2xl border ${c.border} ${c.surface} p-2`}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
+          placeholder="Ask about any service…"
+          className={`flex-1 bg-transparent px-3 py-2 text-sm outline-none ${c.text} placeholder:${c.textFaint}`}
+        />
+        <button
+          onClick={sendMessage}
+          disabled={!input.trim() || loading}
+          className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF6B35] text-white transition-all hover:bg-[#FF5A1F] disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Send size={16} />
+        </button>
+      </div>
+    </div>
   );
 }
 
