@@ -534,8 +534,8 @@ function ServiceCard({ service, isFavorite, toggleFavorite, onClick }: any) {
       className={`group relative flex flex-col gap-4 rounded-2xl border p-5 transition-all duration-300 cursor-pointer ${c.surface} ${c.border} hover:shadow-lg hover:-translate-y-1 ${c.surfaceHover}`}
     >
       <div className="flex items-start justify-between">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: color + "1A", color }}>
-          <Icon size={24} strokeWidth={2} />
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 overflow-hidden" style={{ backgroundColor: color + "1A", color }}>
+          {service.iconUrl ? <img src={service.iconUrl} alt={service.name} className="h-full w-full object-cover" /> : <Icon size={24} strokeWidth={2} />}
         </div>
         <button 
           onClick={(e) => { e.stopPropagation(); toggleFavorite(service.id); }}
@@ -579,8 +579,8 @@ function ServiceDetailModal({ service, close, isFavorite, toggleFavorite }: any)
           </button>
 
           <div className="flex items-center gap-5 mb-6 pr-8">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl shadow-inner" style={{ backgroundColor: color + "1A", color }}>
-              <Icon size={32} strokeWidth={2} />
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl shadow-inner overflow-hidden" style={{ backgroundColor: color + "1A", color }}>
+              {service.iconUrl ? <img src={service.iconUrl} alt={service.name} className="h-full w-full object-cover" /> : <Icon size={32} strokeWidth={2} />}
             </div>
             <div>
               <h2 className={`text-2xl font-bold ${c.text}`}>{service.name}</h2>
@@ -1024,8 +1024,8 @@ function AdminView({ services, servicesLoading }: { services: any[], servicesLoa
                   <tr key={service.id} className={`transition-colors ${c.surfaceHover} group`}>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: color + "1A", color }}>
-                          <Icon size={20} strokeWidth={2} />
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl overflow-hidden" style={{ backgroundColor: color + "1A", color }}>
+                          {service.iconUrl ? <img src={service.iconUrl} alt={service.name} className="h-full w-full object-cover" /> : <Icon size={20} strokeWidth={2} />}
                         </div>
                         <div>
                           <p className="font-semibold">{service.name}</p>
@@ -1119,6 +1119,7 @@ function AdminServiceModal({ service, close, onSave }: any) {
     category: service?.category || "Utilities",
     status: service?.status || "Available",
     iconName: service?.iconName || "Sparkles",
+    iconUrl: service?.iconUrl || "",
     popular: service?.popular || false,
     recent: service?.recent || false,
     features: service?.features?.join("\n") || "",
@@ -1205,6 +1206,35 @@ function AdminServiceModal({ service, close, onSave }: any) {
                 <select name="iconName" value={formData.iconName} onChange={handleChange} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35] appearance-none`}>
                   {Object.keys(ICON_MAP).map(k => <option key={k} value={k} className="text-black dark:text-white">{k}</option>)}
                 </select>
+              </div>
+            </div>
+
+            <div>
+              <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Custom Icon Image <span className={`font-normal ${c.textFaint}`}>(overrides Icon Name)</span></label>
+              <div className="flex items-center gap-3">
+                {formData.iconUrl && (
+                  <img src={formData.iconUrl} alt="icon preview" className="h-12 w-12 rounded-xl object-cover shrink-0 border" style={{ borderColor: "rgba(128,128,128,0.3)" }} />
+                )}
+                <label className={`flex-1 flex items-center gap-2 cursor-pointer rounded-xl border px-4 py-2.5 text-sm transition-colors ${c.border} ${c.surfaceHover}`}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => setFormData((prev: any) => ({ ...prev, iconUrl: reader.result as string }));
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  <span className={c.textMuted}>{formData.iconUrl ? "Replace image…" : "Upload image…"}</span>
+                </label>
+                {formData.iconUrl && (
+                  <button type="button" onClick={() => setFormData((prev: any) => ({ ...prev, iconUrl: "" }))} className={`p-2 rounded-xl border transition-colors text-red-500 hover:bg-red-500/10 ${c.border}`}>
+                    <X size={16} />
+                  </button>
+                )}
               </div>
             </div>
 

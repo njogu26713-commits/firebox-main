@@ -15,6 +15,7 @@ export interface ServiceInput {
   category: string;
   status: ServiceInputStatus;
   iconName: string;
+  iconUrl?: string;
   keywords: string[];
   popular: boolean;
   recent: boolean;

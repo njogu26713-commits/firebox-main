@@ -57,6 +57,7 @@ router.post("/services", async (req, res): Promise<void> => {
       category: body.category,
       status: body.status,
       iconName: body.iconName,
+      iconUrl: body.iconUrl ?? "",
       keywords: body.keywords ?? [],
       popular: body.popular ?? false,
       recent: body.recent ?? false,
@@ -95,7 +96,7 @@ router.patch("/services/:id", async (req, res): Promise<void> => {
     const db = await getDb();
     const col = db.collection("services");
 
-    const allowed = ["name", "tagline", "description", "category", "status", "iconName", "keywords", "popular", "recent", "features", "url"];
+    const allowed = ["name", "tagline", "description", "category", "status", "iconName", "iconUrl", "keywords", "popular", "recent", "features", "url"];
     const update: Record<string, unknown> = {};
     for (const key of allowed) {
       if (key in req.body) update[key] = req.body[key];

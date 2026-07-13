@@ -27,6 +27,7 @@ export interface Service {
   category: string;
   status: ServiceStatus;
   iconName: string;
+  iconUrl?: string;
   keywords: string[];
   popular: boolean;
   recent: boolean;
@@ -51,6 +52,7 @@ export interface ServiceInput {
   category: string;
   status: ServiceInputStatus;
   iconName: string;
+  iconUrl?: string;
   keywords: string[];
   popular: boolean;
   recent: boolean;
@@ -74,6 +76,7 @@ export interface ServiceUpdate {
   category?: string;
   status?: ServiceUpdateStatus;
   iconName?: string;
+  iconUrl?: string;
   keywords?: string[];
   popular?: boolean;
   recent?: boolean;

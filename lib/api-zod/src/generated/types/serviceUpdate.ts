@@ -14,6 +14,7 @@ export interface ServiceUpdate {
   category?: string;
   status?: ServiceUpdateStatus;
   iconName?: string;
+  iconUrl?: string;
   keywords?: string[];
   popular?: boolean;
   recent?: boolean;

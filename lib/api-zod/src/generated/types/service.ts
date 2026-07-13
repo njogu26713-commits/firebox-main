@@ -16,6 +16,7 @@ export interface Service {
   category: string;
   status: ServiceStatus;
   iconName: string;
+  iconUrl?: string;
   keywords: string[];
   popular: boolean;
   recent: boolean;

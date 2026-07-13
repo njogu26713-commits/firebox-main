@@ -208,6 +208,8 @@ components:
           enum: [Available, Beta, "Coming Soon"]
         iconName:
           type: string
+        iconUrl:
+          type: string
         keywords:
           type: array
           items:
@@ -254,6 +256,8 @@ components:
           enum: [Available, Beta, "Coming Soon"]
         iconName:
           type: string
+        iconUrl:
+          type: string
         keywords:
           type: array
           items:
@@ -296,6 +300,8 @@ components:
           type: string
           enum: [Available, Beta, "Coming Soon"]
         iconName:
+          type: string
+        iconUrl:
           type: string
         keywords:
           type: array
