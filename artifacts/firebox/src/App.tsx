@@ -1006,7 +1006,7 @@ function AIView() {
         </div>
         <div>
           <h1 className={`text-2xl font-extrabold tracking-tight ${c.text}`}>Ask AI</h1>
-          <p className={`text-sm ${c.textMuted}`}>Powered by Groq · Knows your full service catalog</p>
+          <p className={`text-sm ${c.textMuted}`}>Powered by Firebox AI · Knows your full service catalog</p>
         </div>
       </div>
 
