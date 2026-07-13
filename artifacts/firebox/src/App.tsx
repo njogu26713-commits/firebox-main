@@ -572,24 +572,28 @@ function ServiceDetailModal({ service, close, isFavorite, toggleFavorite }: any)
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={close} />
       
-      <div className={`relative w-full max-w-lg overflow-hidden rounded-3xl border shadow-2xl animate-fadeSlide ${c.surface} ${c.border}`}>
-        <div className="relative p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
-          <button onClick={close} className={`absolute right-4 top-4 p-2 rounded-full transition-colors ${c.surfaceHover}`}>
-            <X size={20} className={c.textMuted} />
-          </button>
-
-          <div className="flex items-center gap-5 mb-6 pr-8">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl shadow-inner overflow-hidden" style={{ backgroundColor: color + "1A", color }}>
-              {service.iconUrl ? <img src={service.iconUrl} alt={service.name} className="h-full w-full object-cover" /> : <Icon size={32} strokeWidth={2} />}
+      <div className={`relative w-full max-w-lg overflow-hidden rounded-3xl border shadow-2xl animate-fadeSlide ${c.surface} ${c.border} flex flex-col max-h-[90vh]`}>
+        {/* Preview strip */}
+        <div className={`px-6 py-4 border-b ${c.border} shrink-0 flex items-center justify-between gap-4`}>
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl overflow-hidden" style={{ backgroundColor: color + "1A", color }}>
+              {service.iconUrl ? <img src={service.iconUrl} alt={service.name} className="h-full w-full object-cover" /> : <Icon size={24} strokeWidth={2} />}
             </div>
-            <div>
-              <h2 className={`text-2xl font-bold ${c.text}`}>{service.name}</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <StatusBadge status={service.status} />
-                <CategoryBadge category={service.category} />
-              </div>
+            <div className="min-w-0">
+              <p className={`font-semibold truncate ${c.text}`}>{service.name}</p>
+              <p className={`text-sm truncate ${c.textMuted}`}>{service.tagline}</p>
             </div>
           </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <StatusBadge status={service.status} />
+            <CategoryBadge category={service.category} />
+            <button onClick={close} className={`ml-1 p-2 rounded-full transition-colors ${c.surfaceHover}`}>
+              <X size={18} className={c.textMuted} />
+            </button>
+          </div>
+        </div>
+
+        <div className="relative p-6 sm:p-8 overflow-y-auto">
 
           <p className={`text-[15px] leading-relaxed mb-8 ${c.textMuted}`}>
             {service.description}
