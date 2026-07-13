@@ -647,14 +647,7 @@ function MainApp() {
     () => (localStorage.getItem("firebox-theme") as "dark" | "light") || "dark"
   );
   
-  const [activeNav, setActiveNav] = useState(() =>
-    window.location.hash === "#admin" ? "admin" : "home"
-  );
-  const [isAdmin, setIsAdmin] = useState(() => window.location.hash === "#admin");
-  const handleSetActiveNav = (key: string) => {
-    if (key === "admin") setIsAdmin(true);
-    setActiveNav(key);
-  };
+  const [activeNav, setActiveNav] = useState("home");
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
@@ -733,7 +726,7 @@ function MainApp() {
         
         <Sidebar 
           activeNav={activeNav} 
-          setActiveNav={handleSetActiveNav} 
+          setActiveNav={setActiveNav} 
           mobileOpen={mobileOpen} 
           closeMobile={() => setMobileOpen(false)} 
         />
@@ -771,9 +764,7 @@ function MainApp() {
             {activeNav === "ai" && !query ? (
               <AIView />
             ) : activeNav === "tutorials" && !query ? (
-              <TutorialsView isAdmin={isAdmin} />
-            ) : activeNav === "admin" && !query ? (
-              <AdminView services={services} servicesLoading={servicesLoading} />
+              <TutorialsView isAdmin={false} />
             ) : activeNav === "categories" && !query ? (
               <div className="animate-fadeSlide">
                 <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-8">Categories</h1>
@@ -1767,10 +1758,84 @@ function AdminServiceModal({ service, close, onSave }: any) {
   );
 }
 
+function AdminApp() {
+  const [theme, setTheme] = useState<"dark" | "light">(
+    () => (localStorage.getItem("firebox-theme") as "dark" | "light") || "dark"
+  );
+  const [tab, setTab] = useState<"services" | "tutorials">("services");
+  const c = useMemo(() => buildTokens(theme === "dark"), [theme]);
+
+  useEffect(() => {
+    if (theme === "dark") document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
+  }, [theme]);
+
+  const { data: apiServices = [], isLoading: servicesLoading } = useListServices();
+  const services = useMemo(() => apiServices.map(s => ({ ...s, icon: ICON_MAP[s.iconName] ?? Sparkles })), [apiServices]);
+
+  return (
+    <UIContext.Provider value={{ theme, toggleTheme: () => setTheme(t => t === "dark" ? "light" : "dark"), c }}>
+      <div className={`min-h-[100dvh] w-full font-sans ${c.appBg} ${c.text}`}>
+        {/* Top bar */}
+        <header className={`sticky top-0 z-40 flex items-center justify-between border-b ${c.border} ${c.sidebarBg} px-6 py-3`}>
+          <div className="flex items-center gap-3">
+            <FireboxMark size={24} />
+            <span className="font-bold text-base tracking-tight">Firebox</span>
+            <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold bg-[#FF6B35]/15 text-[#FF6B35]`}>Admin</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setTheme(t => t === "dark" ? "light" : "dark")}
+              className={`p-2 rounded-xl ${c.surfaceHover}`}
+            >
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <a
+              href="/"
+              className={`flex items-center gap-1.5 rounded-xl border ${c.border} px-3 py-1.5 text-xs font-semibold ${c.textMuted} ${c.surfaceHover} transition-colors`}
+            >
+              ← Back to site
+            </a>
+          </div>
+        </header>
+
+        {/* Tab nav */}
+        <div className={`border-b ${c.border} px-6`}>
+          <div className="flex gap-1">
+            {(["services", "tutorials"] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors capitalize ${
+                  tab === t
+                    ? "border-[#FF6B35] text-[#FF6B35]"
+                    : `border-transparent ${c.textMuted} hover:${c.text}`
+                }`}
+              >
+                {t === "services" ? "Services" : "Tutorials"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
+        <main className="mx-auto max-w-6xl px-6 py-8">
+          {tab === "services" ? (
+            <AdminView services={services} servicesLoading={servicesLoading} />
+          ) : (
+            <TutorialsView isAdmin={true} />
+          )}
+        </main>
+      </div>
+    </UIContext.Provider>
+  );
+}
+
 export default function App() {
+  const isAdmin = window.location.hash === "#admin";
   return (
     <QueryClientProvider client={queryClient}>
-      <MainApp />
+      {isAdmin ? <AdminApp /> : <MainApp />}
     </QueryClientProvider>
   );
 }
