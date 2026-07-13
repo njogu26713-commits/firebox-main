@@ -972,7 +972,6 @@ function AdminView({ services, servicesLoading }: { services: any[], servicesLoa
   return (
     <div className="animate-fadeSlide">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Admin Dashboard</h1>
         <button 
           onClick={openAdd}
           className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#FF5A1F] transition-colors"
