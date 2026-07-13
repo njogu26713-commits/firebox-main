@@ -1162,6 +1162,32 @@ function AdminServiceModal({ service, close, onSave }: any) {
           </button>
         </div>
 
+        {/* Live card preview */}
+        {(() => {
+          const PreviewIcon = ICON_MAP[formData.iconName] ?? Sparkles;
+          const previewColor = CATEGORY_COLORS[formData.category as keyof typeof CATEGORY_COLORS] || "#94A3B8";
+          return (
+            <div className={`px-6 py-4 border-b ${c.border} shrink-0`}>
+              <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${c.textFaint}`}>Preview</p>
+              <div className={`flex items-center gap-4 rounded-2xl border p-4 ${c.surface} ${c.border}`}>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl overflow-hidden" style={{ backgroundColor: previewColor + "1A", color: previewColor }}>
+                  {formData.iconUrl
+                    ? <img src={formData.iconUrl} alt="" className="h-full w-full object-cover" />
+                    : <PreviewIcon size={24} strokeWidth={2} />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={`font-semibold truncate ${c.text}`}>{formData.name || <span className={c.textFaint}>Service name</span>}</p>
+                  <p className={`text-sm truncate ${c.textMuted}`}>{formData.tagline || <span className={c.textFaint}>Tagline…</span>}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <StatusBadge status={formData.status} />
+                  <CategoryBadge category={formData.category} />
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         <div className="p-6 overflow-y-auto">
           <form id="admin-service-form" onSubmit={handleSubmit} className="space-y-5">
             {!service && (
