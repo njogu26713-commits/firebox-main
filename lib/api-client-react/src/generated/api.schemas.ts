@@ -31,6 +31,7 @@ export interface Service {
   popular: boolean;
   recent: boolean;
   features: string[];
+  url?: string;
 }
 
 export type ServiceInputStatus = typeof ServiceInputStatus[keyof typeof ServiceInputStatus];
@@ -54,6 +55,7 @@ export interface ServiceInput {
   popular: boolean;
   recent: boolean;
   features: string[];
+  url?: string;
 }
 
 export type ServiceUpdateStatus = typeof ServiceUpdateStatus[keyof typeof ServiceUpdateStatus];
@@ -76,6 +78,7 @@ export interface ServiceUpdate {
   popular?: boolean;
   recent?: boolean;
   features?: string[];
+  url?: string;
 }
 
 export type AdminStatsByCategory = {[key: string]: number};

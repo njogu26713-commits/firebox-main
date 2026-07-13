@@ -610,7 +610,9 @@ function ServiceDetailModal({ service, close, isFavorite, toggleFavorite }: any)
 
           <div className="flex gap-3 mt-8">
             <button 
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-3.5 text-sm font-bold text-white shadow-[0_0_0_0_rgba(255,107,53,0)] transition-all hover:bg-[#FF5A1F] hover:shadow-[0_0_20px_rgba(255,107,53,0.3)] hover:-translate-y-0.5 active:translate-y-0"
+              onClick={() => service.url && window.open(service.url, "_blank", "noopener,noreferrer")}
+              disabled={!service.url}
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-3.5 text-sm font-bold text-white shadow-[0_0_0_0_rgba(255,107,53,0)] transition-all hover:bg-[#FF5A1F] hover:shadow-[0_0_20px_rgba(255,107,53,0.3)] hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
             >
               {service.status === "Coming Soon" ? "Join Waitlist" : "Open Service"}
               <ArrowRight size={16} />
@@ -1120,6 +1122,7 @@ function AdminServiceModal({ service, close, onSave }: any) {
     recent: service?.recent || false,
     features: service?.features?.join("\n") || "",
     keywords: service?.keywords?.join(", ") || "",
+    url: service?.url || "",
   });
 
   const handleChange = (e: any) => {
@@ -1213,6 +1216,11 @@ function AdminServiceModal({ service, close, onSave }: any) {
                 <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Keywords (Comma separated)</label>
                 <textarea name="keywords" value={formData.keywords} onChange={handleChange} rows={4} className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35] resize-none`} placeholder="keyword1, keyword2" />
               </div>
+            </div>
+
+            <div>
+              <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Service URL</label>
+              <input name="url" value={formData.url} onChange={handleChange} type="url" className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none bg-transparent ${c.border} focus:border-[#FF6B35]`} placeholder="https://example.com" />
             </div>
 
             <div className="flex items-center gap-6">

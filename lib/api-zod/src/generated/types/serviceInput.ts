@@ -19,4 +19,5 @@ export interface ServiceInput {
   popular: boolean;
   recent: boolean;
   features: string[];
+  url?: string;
 }

@@ -40,7 +40,8 @@ export const ListServicesResponseItem = zod.object({
   "keywords": zod.array(zod.string()),
   "popular": zod.boolean(),
   "recent": zod.boolean(),
-  "features": zod.array(zod.string())
+  "features": zod.array(zod.string()),
+  "url": zod.string().optional()
 })
 export const ListServicesResponse = zod.array(ListServicesResponseItem)
 
@@ -59,7 +60,8 @@ export const CreateServiceBody = zod.object({
   "keywords": zod.array(zod.string()),
   "popular": zod.boolean(),
   "recent": zod.boolean(),
-  "features": zod.array(zod.string())
+  "features": zod.array(zod.string()),
+  "url": zod.string().optional()
 })
 
 export const CreateServiceResponse = zod.object({
@@ -74,7 +76,8 @@ export const CreateServiceResponse = zod.object({
   "keywords": zod.array(zod.string()),
   "popular": zod.boolean(),
   "recent": zod.boolean(),
-  "features": zod.array(zod.string())
+  "features": zod.array(zod.string()),
+  "url": zod.string().optional()
 })
 
 
@@ -97,7 +100,8 @@ export const GetServiceResponse = zod.object({
   "keywords": zod.array(zod.string()),
   "popular": zod.boolean(),
   "recent": zod.boolean(),
-  "features": zod.array(zod.string())
+  "features": zod.array(zod.string()),
+  "url": zod.string().optional()
 })
 
 
@@ -118,7 +122,8 @@ export const UpdateServiceBody = zod.object({
   "keywords": zod.array(zod.string()).optional(),
   "popular": zod.boolean().optional(),
   "recent": zod.boolean().optional(),
-  "features": zod.array(zod.string()).optional()
+  "features": zod.array(zod.string()).optional(),
+  "url": zod.string().optional()
 })
 
 export const UpdateServiceResponse = zod.object({
@@ -133,7 +138,8 @@ export const UpdateServiceResponse = zod.object({
   "keywords": zod.array(zod.string()),
   "popular": zod.boolean(),
   "recent": zod.boolean(),
-  "features": zod.array(zod.string())
+  "features": zod.array(zod.string()),
+  "url": zod.string().optional()
 })
 
 

@@ -220,6 +220,8 @@ components:
           type: array
           items:
             type: string
+        url:
+          type: string
       required:
         - _id
         - id
@@ -264,6 +266,8 @@ components:
           type: array
           items:
             type: string
+        url:
+          type: string
       required:
         - id
         - name
@@ -305,6 +309,8 @@ components:
           type: array
           items:
             type: string
+        url:
+          type: string
 
     AdminStats:
       type: object

@@ -20,4 +20,5 @@ export interface Service {
   popular: boolean;
   recent: boolean;
   features: string[];
+  url?: string;
 }
