@@ -948,12 +948,14 @@ function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
-  // Form state shown after file picked
-  const [pendingFile, setPendingFile] = useState<{ name: string; type: string; data: string } | null>(null);
+  // Upload modal state
+  const [modalOpen, setModalOpen] = useState(false);
   const [formTitle, setFormTitle] = useState("");
   const [formDesc, setFormDesc] = useState("");
+  const [pendingFile, setPendingFile] = useState<{ name: string; type: string; data: string } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const [activeVideo, setActiveVideo] = useState<any>(null);
 
   const fetchTutorials = async () => {
@@ -970,18 +972,33 @@ function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
 
   useEffect(() => { fetchTutorials(); }, []);
 
+  const openModal = () => {
+    setFormTitle("");
+    setFormDesc("");
+    setPendingFile(null);
+    setUploadError("");
+    setModalOpen(true);
+    setTimeout(() => titleInputRef.current?.focus(), 50);
+  };
+
+  const closeModal = () => {
+    if (uploading) return;
+    setModalOpen(false);
+    setPendingFile(null);
+    setFormTitle("");
+    setFormDesc("");
+    setUploadError("");
+  };
+
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       setPendingFile({ name: file.name, type: file.type, data: reader.result as string });
-      setFormTitle(file.name.replace(/\.[^.]+$/, ""));
-      setFormDesc("");
       setUploadError("");
     };
     reader.readAsDataURL(file);
-    // Reset input so same file can be re-selected
     e.target.value = "";
   };
 
@@ -1005,9 +1022,7 @@ function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
         const err = await res.json().catch(() => ({}));
         setUploadError(err.error ?? "Upload failed");
       } else {
-        setPendingFile(null);
-        setFormTitle("");
-        setFormDesc("");
+        setModalOpen(false);
         await fetchTutorials();
       }
     } catch {
@@ -1042,7 +1057,7 @@ function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
               onChange={onFileChange}
             />
             <button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={openModal}
               className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#FF5A1F] transition-colors self-start"
             >
               <Upload size={17} />
@@ -1052,51 +1067,105 @@ function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
         )}
       </div>
 
-      {/* Upload form — shown after file is picked */}
-      {pendingFile && (
-        <div className={`mb-8 rounded-2xl border ${c.border} ${c.surface} p-5`}>
-          <div className="flex items-center gap-3 mb-4">
-            {isVideo(pendingFile.type)
-              ? <FileVideo size={20} className="text-[#FF6B35]" />
-              : <FileText size={20} className="text-[#FF6B35]" />}
-            <span className={`text-sm font-medium ${c.textMuted}`}>{pendingFile.name}</span>
-            <button onClick={() => setPendingFile(null)} className={`ml-auto p-1 rounded-lg ${c.surfaceHover}`}><X size={16} /></button>
-          </div>
-          <div className="space-y-3">
-            <div>
-              <label className={`block text-xs font-semibold mb-1 ${c.textMuted}`}>Title *</label>
-              <input
-                value={formTitle}
-                onChange={e => setFormTitle(e.target.value)}
-                placeholder="Tutorial title"
-                className={`w-full rounded-xl border ${c.border} ${c.surface} px-3 py-2 text-sm outline-none focus:border-[#FF6B35] ${c.text}`}
-              />
+      {/* Upload modal */}
+      {modalOpen && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={closeModal}>
+          <div
+            className={`relative w-full max-w-md rounded-2xl border ${c.border} ${c.surface} shadow-2xl`}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className={`flex items-center justify-between border-b ${c.border} px-5 py-4`}>
+              <div className="flex items-center gap-2">
+                <BookOpen size={18} className="text-[#FF6B35]" />
+                <h3 className="font-bold text-base">Upload Tutorial</h3>
+              </div>
+              <button onClick={closeModal} className={`p-1.5 rounded-lg ${c.surfaceHover}`}>
+                <X size={17} />
+              </button>
             </div>
-            <div>
-              <label className={`block text-xs font-semibold mb-1 ${c.textMuted}`}>Description</label>
-              <textarea
-                value={formDesc}
-                onChange={e => setFormDesc(e.target.value)}
-                placeholder="What does this tutorial cover?"
-                rows={2}
-                className={`w-full rounded-xl border ${c.border} ${c.surface} px-3 py-2 text-sm outline-none focus:border-[#FF6B35] resize-none ${c.text}`}
-              />
+
+            {/* Modal body */}
+            <div className="p-5 space-y-4">
+              {/* Title — filled first */}
+              <div>
+                <label className={`block text-xs font-semibold mb-1.5 ${c.textMuted}`}>
+                  Tutorial title <span className="text-[#FF6B35]">*</span>
+                </label>
+                <input
+                  ref={titleInputRef}
+                  value={formTitle}
+                  onChange={e => setFormTitle(e.target.value)}
+                  placeholder="e.g. How to connect Firebox bot"
+                  className={`w-full rounded-xl border ${c.border} bg-transparent px-3 py-2.5 text-sm outline-none focus:border-[#FF6B35] transition-colors ${c.text} placeholder:opacity-50`}
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className={`block text-xs font-semibold mb-1.5 ${c.textMuted}`}>Description <span className={c.textFaint}>(optional)</span></label>
+                <textarea
+                  value={formDesc}
+                  onChange={e => setFormDesc(e.target.value)}
+                  placeholder="What will users learn from this tutorial?"
+                  rows={2}
+                  className={`w-full rounded-xl border ${c.border} bg-transparent px-3 py-2.5 text-sm outline-none focus:border-[#FF6B35] resize-none transition-colors ${c.text} placeholder:opacity-50`}
+                />
+              </div>
+
+              {/* File picker */}
+              <div>
+                <label className={`block text-xs font-semibold mb-1.5 ${c.textMuted}`}>
+                  File <span className="text-[#FF6B35]">*</span>
+                  <span className={`ml-1 font-normal ${c.textFaint}`}>· video or PDF</span>
+                </label>
+                {pendingFile ? (
+                  <div className={`flex items-center gap-3 rounded-xl border ${c.border} px-3 py-2.5`}>
+                    {isVideo(pendingFile.type)
+                      ? <FileVideo size={16} className="text-[#FF6B35] shrink-0" />
+                      : <FileText size={16} className="text-[#FF6B35] shrink-0" />}
+                    <span className={`text-sm truncate flex-1 ${c.textMuted}`}>{pendingFile.name}</span>
+                    <button
+                      onClick={() => { setPendingFile(null); fileInputRef.current?.click(); }}
+                      className={`text-xs font-medium text-[#FF6B35] hover:underline shrink-0`}
+                    >
+                      Change
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed ${c.border} px-3 py-4 text-sm font-medium ${c.textMuted} hover:border-[#FF6B35] hover:text-[#FF6B35] transition-colors`}
+                  >
+                    <Upload size={16} />
+                    Choose file
+                  </button>
+                )}
+              </div>
+
+              {uploadError && <p className="text-sm text-red-500">{uploadError}</p>}
             </div>
-            {uploadError && <p className="text-sm text-red-500">{uploadError}</p>}
-            <div className="flex gap-2">
+
+            {/* Modal footer */}
+            <div className={`flex gap-2 border-t ${c.border} px-5 py-4`}>
               <button
                 onClick={submitUpload}
-                disabled={uploading || !formTitle.trim()}
-                className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-2 text-sm font-bold text-white hover:bg-[#FF5A1F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                disabled={uploading || !formTitle.trim() || !pendingFile}
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#FF5A1F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {uploading ? "Uploading…" : "Upload Tutorial"}
               </button>
-              <button onClick={() => setPendingFile(null)} className={`rounded-xl px-4 py-2 text-sm font-medium border ${c.border} ${c.surfaceHover}`}>
+              <button
+                onClick={closeModal}
+                disabled={uploading}
+                className={`rounded-xl px-4 py-2.5 text-sm font-medium border ${c.border} ${c.surfaceHover} disabled:opacity-40`}
+              >
                 Cancel
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Video modal */}
