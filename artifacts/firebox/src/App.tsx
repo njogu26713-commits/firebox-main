@@ -4,7 +4,7 @@ import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
   Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight,
-  Plus, Pencil, Trash2, BarChart2, Bot, Send, User
+  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo
 } from "lucide-react";
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -229,6 +229,7 @@ const NAV_ITEMS = [
   { key: "favorites", label: "Favorites", icon: Star },
   { key: "comingsoon", label: "Coming Soon", icon: Sparkles },
   { key: "ai", label: "Ask AI", icon: Bot },
+  { key: "tutorials", label: "Tutorials", icon: BookOpen },
 ];
 
 const NAV_TITLES: Record<string, string> = {
@@ -243,6 +244,7 @@ const NAV_TITLES: Record<string, string> = {
   settings: "Settings",
   admin: "Admin Dashboard",
   ai: "Ask AI",
+  tutorials: "Tutorials",
 };
 
 const NAV_EMPTY: Record<string, string> = {
@@ -648,6 +650,11 @@ function MainApp() {
   const [activeNav, setActiveNav] = useState(() =>
     window.location.hash === "#admin" ? "admin" : "home"
   );
+  const [isAdmin, setIsAdmin] = useState(() => window.location.hash === "#admin");
+  const handleSetActiveNav = (key: string) => {
+    if (key === "admin") setIsAdmin(true);
+    setActiveNav(key);
+  };
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
@@ -726,7 +733,7 @@ function MainApp() {
         
         <Sidebar 
           activeNav={activeNav} 
-          setActiveNav={setActiveNav} 
+          setActiveNav={handleSetActiveNav} 
           mobileOpen={mobileOpen} 
           closeMobile={() => setMobileOpen(false)} 
         />
@@ -763,6 +770,8 @@ function MainApp() {
             {/* Categories View */}
             {activeNav === "ai" && !query ? (
               <AIView />
+            ) : activeNav === "tutorials" && !query ? (
+              <TutorialsView isAdmin={isAdmin} />
             ) : activeNav === "admin" && !query ? (
               <AdminView services={services} servicesLoading={servicesLoading} />
             ) : activeNav === "categories" && !query ? (
@@ -927,6 +936,253 @@ function MainApp() {
         )}
       </div>
     </UIContext.Provider>
+  );
+}
+
+function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
+  const { c } = useUI();
+  const BASE = import.meta.env.BASE_URL as string;
+
+  const [tutorials, setTutorials] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  // Form state shown after file picked
+  const [pendingFile, setPendingFile] = useState<{ name: string; type: string; data: string } | null>(null);
+  const [formTitle, setFormTitle] = useState("");
+  const [formDesc, setFormDesc] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeVideo, setActiveVideo] = useState<any>(null);
+
+  const fetchTutorials = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE}api/tutorials`);
+      const data = await res.json();
+      setTutorials(Array.isArray(data) ? data : []);
+    } catch {
+      setTutorials([]);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchTutorials(); }, []);
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPendingFile({ name: file.name, type: file.type, data: reader.result as string });
+      setFormTitle(file.name.replace(/\.[^.]+$/, ""));
+      setFormDesc("");
+      setUploadError("");
+    };
+    reader.readAsDataURL(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
+  };
+
+  const submitUpload = async () => {
+    if (!pendingFile || !formTitle.trim()) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const res = await fetch(`${BASE}api/tutorials`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formTitle.trim(),
+          description: formDesc.trim(),
+          fileName: pendingFile.name,
+          fileType: pendingFile.type,
+          fileData: pendingFile.data,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setUploadError(err.error ?? "Upload failed");
+      } else {
+        setPendingFile(null);
+        setFormTitle("");
+        setFormDesc("");
+        await fetchTutorials();
+      }
+    } catch {
+      setUploadError("Could not reach the server.");
+    }
+    setUploading(false);
+  };
+
+  const deleteTutorial = async (id: string) => {
+    if (!confirm("Delete this tutorial?")) return;
+    await fetch(`${BASE}api/tutorials/${id}`, { method: "DELETE" });
+    setTutorials(prev => prev.filter(t => t._id !== id));
+  };
+
+  const isVideo = (type: string) => type.startsWith("video/");
+
+  return (
+    <div className="animate-fadeSlide">
+      {/* Header row */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Tutorials</h1>
+          <p className={`mt-1 text-sm ${c.textMuted}`}>{tutorials.length} {tutorials.length === 1 ? "tutorial" : "tutorials"} available</p>
+        </div>
+        {isAdmin && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="video/*,.pdf,application/pdf"
+              className="hidden"
+              onChange={onFileChange}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#FF5A1F] transition-colors self-start"
+            >
+              <Upload size={17} />
+              Open File
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Upload form — shown after file is picked */}
+      {pendingFile && (
+        <div className={`mb-8 rounded-2xl border ${c.border} ${c.surface} p-5`}>
+          <div className="flex items-center gap-3 mb-4">
+            {isVideo(pendingFile.type)
+              ? <FileVideo size={20} className="text-[#FF6B35]" />
+              : <FileText size={20} className="text-[#FF6B35]" />}
+            <span className={`text-sm font-medium ${c.textMuted}`}>{pendingFile.name}</span>
+            <button onClick={() => setPendingFile(null)} className={`ml-auto p-1 rounded-lg ${c.surfaceHover}`}><X size={16} /></button>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <label className={`block text-xs font-semibold mb-1 ${c.textMuted}`}>Title *</label>
+              <input
+                value={formTitle}
+                onChange={e => setFormTitle(e.target.value)}
+                placeholder="Tutorial title"
+                className={`w-full rounded-xl border ${c.border} ${c.surface} px-3 py-2 text-sm outline-none focus:border-[#FF6B35] ${c.text}`}
+              />
+            </div>
+            <div>
+              <label className={`block text-xs font-semibold mb-1 ${c.textMuted}`}>Description</label>
+              <textarea
+                value={formDesc}
+                onChange={e => setFormDesc(e.target.value)}
+                placeholder="What does this tutorial cover?"
+                rows={2}
+                className={`w-full rounded-xl border ${c.border} ${c.surface} px-3 py-2 text-sm outline-none focus:border-[#FF6B35] resize-none ${c.text}`}
+              />
+            </div>
+            {uploadError && <p className="text-sm text-red-500">{uploadError}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={submitUpload}
+                disabled={uploading || !formTitle.trim()}
+                className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-2 text-sm font-bold text-white hover:bg-[#FF5A1F] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {uploading ? "Uploading…" : "Upload Tutorial"}
+              </button>
+              <button onClick={() => setPendingFile(null)} className={`rounded-xl px-4 py-2 text-sm font-medium border ${c.border} ${c.surfaceHover}`}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video modal */}
+      {activeVideo && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setActiveVideo(null)}>
+          <div className={`relative w-full max-w-3xl rounded-2xl overflow-hidden ${c.surface} shadow-2xl`} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "inherit" }}>
+              <h3 className="font-semibold text-base">{activeVideo.title}</h3>
+              <button onClick={() => setActiveVideo(null)} className={`p-1.5 rounded-lg ${c.surfaceHover}`}><X size={18} /></button>
+            </div>
+            <video src={activeVideo.fileData} controls autoPlay className="w-full max-h-[60vh] bg-black" />
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Tutorial grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[...Array(3)].map((_, i) => <div key={i} className={`h-44 rounded-2xl border ${c.border} animate-pulse bg-black/5 dark:bg-white/5`} />)}
+        </div>
+      ) : tutorials.length === 0 ? (
+        <div className={`flex flex-col items-center justify-center rounded-2xl border ${c.border} py-20 text-center`}>
+          <BookOpen size={36} className={`mb-3 ${c.textFaint}`} />
+          <p className={`font-semibold ${c.textMuted}`}>No tutorials yet</p>
+          {isAdmin && <p className={`text-sm mt-1 ${c.textFaint}`}>Click "Open File" to upload the first one.</p>}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {tutorials.map(t => (
+            <div key={t._id} className={`group relative flex flex-col rounded-2xl border ${c.border} ${c.surface} overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5`}>
+              {/* Thumbnail / type badge */}
+              <div className="relative flex items-center justify-center h-36 bg-gradient-to-br from-[#FF6B35]/10 to-[#FF6B35]/5">
+                {isVideo(t.fileType) ? (
+                  <button
+                    onClick={() => setActiveVideo(t)}
+                    className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6B35] text-white shadow-lg hover:scale-110 transition-transform"
+                  >
+                    <PlayCircle size={28} />
+                  </button>
+                ) : (
+                  <a
+                    href={t.fileData}
+                    download={t.fileName}
+                    className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6B35] text-white shadow-lg hover:scale-110 transition-transform"
+                  >
+                    <FileText size={26} />
+                  </a>
+                )}
+                <span className={`absolute top-3 right-3 rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${c.surface} border ${c.border}`}>
+                  {isVideo(t.fileType) ? "Video" : "PDF"}
+                </span>
+              </div>
+
+              {/* Info */}
+              <div className="flex flex-1 flex-col p-4">
+                <h3 className="font-semibold text-sm leading-snug mb-1">{t.title}</h3>
+                {t.description && <p className={`text-xs ${c.textMuted} line-clamp-2`}>{t.description}</p>}
+                <div className="mt-auto pt-3 flex items-center justify-between">
+                  {isVideo(t.fileType) ? (
+                    <button
+                      onClick={() => setActiveVideo(t)}
+                      className="text-xs font-semibold text-[#FF6B35] hover:underline"
+                    >
+                      Watch
+                    </button>
+                  ) : (
+                    <a href={t.fileData} download={t.fileName} className="text-xs font-semibold text-[#FF6B35] hover:underline">
+                      Download
+                    </a>
+                  )}
+                  {isAdmin && (
+                    <button
+                      onClick={() => deleteTutorial(t._id)}
+                      className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${c.surfaceHover} text-red-500`}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
