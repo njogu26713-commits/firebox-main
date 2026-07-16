@@ -24,7 +24,7 @@ router.get("/services", async (req, res): Promise<void> => {
       ];
     }
 
-    const services = await col.find(filter).toArray();
+    const services = await col.find(filter).sort({ _id: -1 }).toArray();
     res.json(services.map((s) => ({ ...s, _id: s._id.toString() })));
   } catch (err) {
     req.log.error({ err }, "Failed to list services");
