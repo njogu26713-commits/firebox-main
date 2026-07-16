@@ -1380,12 +1380,18 @@ function AdminView({ services, servicesLoading }: { services: any[], servicesLoa
   const queryClient = useQueryClient();
   const { data: stats, isLoading: statsLoading } = useGetAdminStats();
   
+  const [modalError, setModalError] = useState<string | null>(null);
+
   const createMutation = useCreateService({
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListServicesQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() });
+        setModalError(null);
         setModalOpen(false);
+      },
+      onError: (err: any) => {
+        setModalError(err?.response?.data?.error || err?.message || "Failed to create service");
       }
     }
   });
@@ -1395,7 +1401,11 @@ function AdminView({ services, servicesLoading }: { services: any[], servicesLoa
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListServicesQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetAdminStatsQueryKey() });
+        setModalError(null);
         setModalOpen(false);
+      },
+      onError: (err: any) => {
+        setModalError(err?.response?.data?.error || err?.message || "Failed to update service");
       }
     }
   });
@@ -1511,8 +1521,10 @@ function AdminView({ services, servicesLoading }: { services: any[], servicesLoa
       {modalOpen && (
         <AdminServiceModal 
           service={editingService} 
-          close={() => setModalOpen(false)} 
+          close={() => { setModalOpen(false); setModalError(null); }} 
+          error={modalError}
           onSave={(data: any) => {
+            setModalError(null);
             if (editingService) {
               updateMutation.mutate({ id: editingService.id, data });
             } else {
@@ -1562,8 +1574,9 @@ function DeleteButton({ onDelete, c }: { onDelete: () => void; c: any }) {
   );
 }
 
-function AdminServiceModal({ service, close, onSave }: any) {
+function AdminServiceModal({ service, close, onSave, error }: any) {
   const { c } = useUI();
+  const [idManuallyEdited, setIdManuallyEdited] = useState(!!service?.id);
   const [formData, setFormData] = useState({
     id: service?.id || "",
     name: service?.name || "",
@@ -1580,12 +1593,18 @@ function AdminServiceModal({ service, close, onSave }: any) {
     url: service?.url || "",
   });
 
+  const toSlug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev: any) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
+    if (name === "id") setIdManuallyEdited(true);
+    setFormData((prev: any) => {
+      const next: any = { ...prev, [name]: type === "checkbox" ? checked : value };
+      if (name === "name" && !idManuallyEdited && !service) {
+        next.id = toSlug(value);
+      }
+      return next;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1614,6 +1633,12 @@ function AdminServiceModal({ service, close, onSave }: any) {
             <X size={20} className={c.textMuted} />
           </button>
         </div>
+
+        {error && (
+          <div className="mx-6 mt-4 shrink-0 rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-500 font-medium">
+            {error}
+          </div>
+        )}
 
         {/* Live card preview */}
         {(() => {
