@@ -1390,8 +1390,18 @@ function AdminView({ services, servicesLoading }: { services: any[], servicesLoa
         setModalError(null);
         setModalOpen(false);
       },
-      onError: (err: any) => {
-        setModalError(err?.response?.data?.error || err?.message || "Failed to create service");
+      onError: (err: any, variables: any) => {
+        const msg: string = err?.response?.data?.error || err?.message || "";
+        if (msg.toLowerCase().includes("already exists")) {
+          // Auto-bump the id suffix and retry silently
+          const currentId: string = variables.data.id || "";
+          const m = currentId.match(/^(.*?)(-(\d+))?$/);
+          const base = m?.[1] ?? currentId;
+          const num = m?.[3] ? parseInt(m[3]) + 1 : 2;
+          createMutation.mutate({ data: { ...variables.data, id: `${base}-${num}` } });
+        } else {
+          setModalError(msg || "Failed to create service");
+        }
       }
     }
   });
