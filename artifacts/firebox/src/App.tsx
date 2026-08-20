@@ -541,7 +541,7 @@ function ServiceCard({ service, isFavorite, toggleFavorite, onClick }: any) {
     >
       <div className="relative aspect-square overflow-hidden lg:aspect-auto lg:min-h-0 lg:flex-1" style={{ background: `linear-gradient(135deg, ${color}28, ${color}08 55%, transparent)` }}>
         {service.iconUrl ? (
-          <img src={service.iconUrl} alt={service.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <img src={service.iconUrl} alt={service.name} className="h-full w-full bg-black/5 object-contain p-2 transition-transform duration-500 group-hover:scale-[1.02]" />
         ) : (
           <div className="flex h-full w-full items-center justify-center" style={{ color }}>
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl" style={{ backgroundColor: `${color}22` }}>
@@ -549,12 +549,12 @@ function ServiceCard({ service, isFavorite, toggleFavorite, onClick }: any) {
             </div>
           </div>
         )}
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-black/65 via-black/15 to-transparent p-4 pt-12">
+        <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3">
           <CategoryBadge category={service.category} />
           <button
             aria-label={isFavorite ? `Remove ${service.name} from favorites` : `Add ${service.name} to favorites`}
             onClick={(e) => { e.stopPropagation(); toggleFavorite(service.id); }}
-            className={`rounded-full p-2 transition-colors ${isFavorite ? "bg-[#FF6B35] text-white" : "bg-black/30 text-white hover:bg-black/50"}`}
+            className={`rounded-full p-2 transition-colors ${isFavorite ? "bg-[#FF6B35] text-white" : "bg-black/35 text-white hover:bg-black/55"}`}
           >
             <Star size={17} fill={isFavorite ? "currentColor" : "none"} />
           </button>
