@@ -749,7 +749,11 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
             <StatusBadge status={service.status} />
           </div>
           <div className="flex items-start gap-4 sm:gap-6">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl" style={{ backgroundColor: `${color}18`, color }}><Icon size={28} /></div>
+            {service.iconUrl ? (
+              <img src={service.iconUrl} alt={`${service.name} preview`} className="h-20 w-20 shrink-0 rounded-lg border object-cover shadow-sm" style={{ borderColor: `${color}40` }} />
+            ) : (
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: `${color}18`, color }}><Icon size={28} /></div>
+            )}
             <div>
               <h1 className={`text-4xl font-black tracking-[-0.04em] sm:text-6xl ${c.text}`}>{service.name}</h1>
               <p className={`mt-3 text-lg leading-7 ${c.textMuted}`}>{service.tagline}</p>
@@ -1986,10 +1990,10 @@ function AdminServiceModal({ service, close, onSave, error }: any) {
             </div>
 
             <div>
-              <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Custom Icon Image <span className={`font-normal ${c.textFaint}`}>(overrides Icon Name)</span></label>
+              <label className={`block text-sm font-medium mb-1.5 ${c.textMuted}`}>Service Image <span className={`font-normal ${c.textFaint}`}>(shown on cards and the Service Page)</span></label>
               <div className="flex items-center gap-3">
                 {formData.iconUrl && (
-                  <img src={formData.iconUrl} alt="icon preview" className="h-12 w-12 rounded-xl object-cover shrink-0 border" style={{ borderColor: "rgba(128,128,128,0.3)" }} />
+                  <img src={formData.iconUrl} alt="service image preview" className="h-12 w-12 rounded-xl object-cover shrink-0 border" style={{ borderColor: "rgba(128,128,128,0.3)" }} />
                 )}
                 <label className={`flex-1 flex items-center gap-2 cursor-pointer rounded-xl border px-4 py-2.5 text-sm transition-colors ${c.border} ${c.surfaceHover}`}>
                   <input
@@ -2004,7 +2008,7 @@ function AdminServiceModal({ service, close, onSave, error }: any) {
                       reader.readAsDataURL(file);
                     }}
                   />
-                  <span className={c.textMuted}>{formData.iconUrl ? "Replace image…" : "Upload image…"}</span>
+                  <span className={c.textMuted}>{formData.iconUrl ? "Replace service image…" : "Upload service image…"}</span>
                 </label>
                 {formData.iconUrl && (
                   <button type="button" onClick={() => setFormData((prev: any) => ({ ...prev, iconUrl: "" }))} className={`p-2 rounded-xl border transition-colors text-red-500 hover:bg-red-500/10 ${c.border}`}>
