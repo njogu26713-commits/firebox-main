@@ -4,7 +4,7 @@ import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
   Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight,
-  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo
+  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo, Mail, MapPin, PhoneCall
 } from "lucide-react";
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -230,6 +230,7 @@ const NAV_ITEMS = [
   { key: "comingsoon", label: "Coming Soon", icon: Sparkles },
   { key: "ai", label: "Ask AI", icon: Bot },
   { key: "tutorials", label: "Tutorials", icon: BookOpen },
+  { key: "contact", label: "Reach Us", icon: Mail },
 ];
 
 const NAV_TITLES: Record<string, string> = {
@@ -245,6 +246,7 @@ const NAV_TITLES: Record<string, string> = {
   admin: "Admin Dashboard",
   ai: "Ask AI",
   tutorials: "Tutorials",
+  contact: "Reach Us",
 };
 
 const NAV_EMPTY: Record<string, string> = {
@@ -779,8 +781,58 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack }: any) {
   );
 }
 
-// --- MAIN APP ---
+function ReachUsView({ showToast }: { showToast: (message: string) => void }) {
+  const { c } = useUI();
+  const [submitted, setSubmitted] = useState(false);
 
+  const submitForm = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitted(true);
+    showToast("Message received — we’ll be in touch soon");
+  };
+
+  return (
+    <div className="animate-fadeSlide space-y-8 pb-12">
+      <section className="relative overflow-hidden rounded-[2rem] border border-[#FFB347]/30 bg-[#17191D] px-6 py-10 text-white shadow-2xl shadow-[#FF6B35]/10 sm:px-10 sm:py-14 lg:px-14">
+        <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[#FF6B35]/20 blur-3xl" />
+        <div className="relative max-w-3xl">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#FFB347]"><Mail size={14} /> We’d love to hear from you</div>
+          <h1 className="text-4xl font-black leading-[1.04] tracking-[-0.04em] sm:text-6xl">Let’s make Firebox better together.</h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">Have a question, an idea, or something you want to see in Firebox? Reach out and tell us what is on your mind.</p>
+        </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr]">
+        <div className="space-y-4">
+          {[
+            { icon: Mail, title: "Email us", value: "hello@firebox.app", copy: "For questions, feedback, and ideas." },
+            { icon: PhoneCall, title: "Talk to the team", value: "We usually reply within 1–2 days", copy: "We read every message carefully." },
+            { icon: MapPin, title: "Built for everyone", value: "Online, wherever you are", copy: "Firebox is made to feel close, wherever you work." },
+          ].map(({ icon: Icon, title, value, copy }) => (
+            <div key={title} className={`rounded-2xl border p-5 ${c.surface} ${c.border}`}>
+              <div className="flex items-start gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><Icon size={19} /></div><div><h2 className={`font-bold ${c.text}`}>{title}</h2><p className="mt-1 text-sm font-semibold text-[#FF6B35]">{value}</p><p className={`mt-1 text-sm leading-6 ${c.textMuted}`}>{copy}</p></div></div>
+            </div>
+          ))}
+        </div>
+
+        <div className={`rounded-3xl border p-6 sm:p-8 ${c.surface} ${c.border}`}>
+          {submitted ? (
+            <div className="flex min-h-[340px] flex-col items-center justify-center text-center"><div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#34D399]/15 text-[#34D399]"><Check size={28} /></div><h2 className={`mt-5 text-2xl font-black ${c.text}`}>Thanks for reaching out.</h2><p className={`mt-3 max-w-md leading-7 ${c.textMuted}`}>Your note is on its way to the Firebox team. We’ll get back to you as soon as we can.</p><button onClick={() => setSubmitted(false)} className="mt-7 text-sm font-bold text-[#FF6B35] hover:text-[#FF5A1F]">Send another message</button></div>
+          ) : (
+            <form onSubmit={submitForm} className="space-y-5">
+              <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF6B35]">Send a note</p><h2 className={`mt-2 text-2xl font-black tracking-tight ${c.text}`}>What can we help with?</h2><p className={`mt-2 text-sm leading-6 ${c.textMuted}`}>Whether it’s a question or a bright idea, this is a good place to start.</p></div>
+              <div className="grid gap-5 sm:grid-cols-2"><label className="space-y-2"><span className={`text-sm font-semibold ${c.text}`}>Your name</span><input required name="name" placeholder="Jane Doe" className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-[#FF6B35] ${c.surfaceAlt} ${c.border} ${c.text}`} /></label><label className="space-y-2"><span className={`text-sm font-semibold ${c.text}`}>Email address</span><input required type="email" name="email" placeholder="jane@example.com" className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-[#FF6B35] ${c.surfaceAlt} ${c.border} ${c.text}`} /></label></div>
+              <label className="block space-y-2"><span className={`text-sm font-semibold ${c.text}`}>How can we help?</span><textarea required name="message" rows={6} placeholder="Tell us what’s on your mind..." className={`w-full resize-none rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-[#FF6B35] ${c.surfaceAlt} ${c.border} ${c.text}`} /></label>
+              <button type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98] sm:w-auto">Send message <Send size={17} /></button>
+            </form>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// --- MAIN APP ---
 function MainApp() {
   const [theme, setTheme] = useState<"dark" | "light">(
     () => (localStorage.getItem("firebox-theme") as "dark" | "light") || "dark"
@@ -889,7 +941,7 @@ function MainApp() {
             ) : (
             <>
             {/* Context Header */}
-            {activeNav !== "home" && activeNav !== "settings" && activeNav !== "categories" && !query && (
+            {activeNav !== "home" && activeNav !== "settings" && activeNav !== "categories" && activeNav !== "contact" && !query && (
               <div className="mb-10 animate-fadeSlide">
                 <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{NAV_TITLES[activeNav] || "Services"}</h1>
                 {activeNav === "explore" && (
@@ -911,6 +963,8 @@ function MainApp() {
             {/* Categories View */}
             {activeNav === "home" && !query ? (
               <WelcomeHome setActiveNav={setActiveNav} />
+            ) : activeNav === "contact" && !query ? (
+              <ReachUsView showToast={(message) => { setToastMsg(message); setTimeout(() => setToastMsg(""), 3000); }} />
             ) : activeNav === "ai" && !query ? (
               <AIView />
             ) : activeNav === "tutorials" && !query ? (
@@ -990,6 +1044,12 @@ function MainApp() {
             ) : (
               /* Normal Services Grid View */
               <div className="animate-fadeSlide">
+                {activeNav === "recent" && !query && (
+                  <section className={`mb-10 rounded-3xl border p-6 sm:p-8 ${c.surfaceAlt} ${c.border}`}>
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div><div className="mb-3 flex items-center gap-2 text-[#FF6B35]"><Clock size={18} /><span className="text-xs font-bold uppercase tracking-[0.18em]">Fresh in Firebox</span></div><h2 className={`text-2xl font-black tracking-tight sm:text-3xl ${c.text}`}>New tools for your next chapter.</h2><p className={`mt-2 max-w-2xl leading-6 ${c.textMuted}`}>See what has recently joined Firebox and find a new way to work, create, or move forward.</p></div><div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#FF6B35]/10 text-[#FF6B35]"><Sparkles size={25} /></div></div>
+                  </section>
+                )}
+
                 {activeNav === "explore" && !query && (
                   <div className="mb-12">
                     <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
