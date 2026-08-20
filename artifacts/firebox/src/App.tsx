@@ -537,9 +537,9 @@ function ServiceCard({ service, isFavorite, toggleFavorite, onClick }: any) {
   return (
     <article
       onClick={onClick}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 ${c.surface} ${c.border} hover:-translate-y-1 hover:shadow-lg ${c.surfaceHover}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 lg:aspect-square ${c.surface} ${c.border} hover:-translate-y-1 hover:shadow-lg ${c.surfaceHover}`}
     >
-      <div className="relative aspect-square overflow-hidden" style={{ background: `linear-gradient(135deg, ${color}28, ${color}08 55%, transparent)` }}>
+      <div className="relative aspect-square overflow-hidden lg:aspect-auto lg:min-h-0 lg:flex-1" style={{ background: `linear-gradient(135deg, ${color}28, ${color}08 55%, transparent)` }}>
         {service.iconUrl ? (
           <img src={service.iconUrl} alt={service.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
         ) : (
@@ -564,8 +564,8 @@ function ServiceCard({ service, isFavorite, toggleFavorite, onClick }: any) {
       <div className="flex flex-1 flex-col p-4 pb-5">
         <h3 className={`text-lg font-semibold ${c.text}`}>{service.name}</h3>
         <p className={`mt-1 text-sm leading-6 ${c.textMuted} line-clamp-2`}>{service.tagline}</p>
-        {service.description && <p className={`mt-3 text-xs leading-5 ${c.textFaint} line-clamp-2`}>{service.description}</p>}
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        {service.description && <p className={`mt-2 text-xs leading-5 ${c.textFaint} line-clamp-1`}>{service.description}</p>}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <StatusBadge status={service.status} />
         </div>
       </div>
