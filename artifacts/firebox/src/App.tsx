@@ -4,7 +4,7 @@ import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
   Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight,
-  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo, Mail, MapPin, PhoneCall, Link2, Copy
+  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo, Mail, MapPin, PhoneCall, Link2, Copy, Facebook, Instagram, Music2, Twitter
 } from "lucide-react";
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -33,6 +33,15 @@ const CATEGORY_COLORS = {
 };
 
 const CATEGORIES = Object.keys(CATEGORY_COLORS);
+
+const EMPTY_SOCIAL_LINKS = {
+  whatsapp: "",
+  facebook: "",
+  tiktok: "",
+  instagram: "",
+  x: "",
+  whatsappChannel: "",
+};
 
 const SERVICES = [
   {
@@ -835,6 +844,23 @@ function LivePreviewPage({ service, goBack }: { service: any; goBack: () => void
 function ReachUsView({ showToast }: { showToast: (message: string) => void }) {
   const { c } = useUI();
   const [submitted, setSubmitted] = useState(false);
+  const [socialLinks, setSocialLinks] = useState(EMPTY_SOCIAL_LINKS);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}api/settings/social-links`)
+      .then(response => response.ok ? response.json() : EMPTY_SOCIAL_LINKS)
+      .then(data => setSocialLinks({ ...EMPTY_SOCIAL_LINKS, ...data }))
+      .catch(() => setSocialLinks(EMPTY_SOCIAL_LINKS));
+  }, []);
+
+  const socialItems = [
+    { key: "whatsapp", label: "WhatsApp", icon: MessageCircle },
+    { key: "facebook", label: "Facebook", icon: Facebook },
+    { key: "tiktok", label: "TikTok", icon: Music2 },
+    { key: "instagram", label: "Instagram", icon: Instagram },
+    { key: "x", label: "X", icon: Twitter },
+    { key: "whatsappChannel", label: "WhatsApp Channel", icon: Radio },
+  ] as const;
 
   const submitForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -863,6 +889,18 @@ function ReachUsView({ showToast }: { showToast: (message: string) => void }) {
               <div className="flex items-start gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><Icon size={19} /></div><div><h2 className={`font-bold ${c.text}`}>{title}</h2><p className="mt-1 text-sm font-semibold text-[#FF6B35]">{value}</p><p className={`mt-1 text-sm leading-6 ${c.textMuted}`}>{copy}</p></div></div>
             </div>
           ))}
+          {socialItems.some(item => socialLinks[item.key]) && (
+            <div className={`border-t pt-4 ${c.border}`}>
+              <p className={`mb-3 text-xs font-bold uppercase tracking-[0.16em] ${c.textFaint}`}>Find us online</p>
+              <div className="flex flex-wrap gap-2">
+                {socialItems.filter(item => socialLinks[item.key]).map(({ key, label, icon: Icon }) => (
+                  <a key={key} href={socialLinks[key]} target="_blank" rel="noreferrer" aria-label={label} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors hover:border-[#FF6B35] hover:text-[#FF6B35] ${c.border} ${c.textMuted}`}>
+                    <Icon size={15} /> {label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className={`lg:border-l lg:pl-8 ${c.border}`}>
@@ -2097,11 +2135,70 @@ function AdminServiceModal({ service, close, onSave, error }: any) {
   );
 }
 
+function SocialLinksView() {
+  const { c } = useUI();
+  const BASE = import.meta.env.BASE_URL as string;
+  const [links, setLinks] = useState(EMPTY_SOCIAL_LINKS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const socialFields = [
+    { key: "whatsapp", label: "WhatsApp", icon: MessageCircle, placeholder: "https://wa.me/…" },
+    { key: "facebook", label: "Facebook", icon: Facebook, placeholder: "https://facebook.com/…" },
+    { key: "tiktok", label: "TikTok", icon: Music2, placeholder: "https://tiktok.com/@…" },
+    { key: "instagram", label: "Instagram", icon: Instagram, placeholder: "https://instagram.com/…" },
+    { key: "x", label: "X", icon: Twitter, placeholder: "https://x.com/…" },
+    { key: "whatsappChannel", label: "WhatsApp Channel", icon: Radio, placeholder: "https://whatsapp.com/channel/…" },
+  ] as const;
+
+  useEffect(() => {
+    fetch(`${BASE}api/settings/social-links`)
+      .then(response => response.ok ? response.json() : EMPTY_SOCIAL_LINKS)
+      .then(data => setLinks({ ...EMPTY_SOCIAL_LINKS, ...data }))
+      .catch(() => setLinks(EMPTY_SOCIAL_LINKS))
+      .finally(() => setLoading(false));
+  }, [BASE]);
+
+  const saveLinks = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSaving(true);
+    setSaved(false);
+    try {
+      const response = await fetch(`${BASE}api/settings/social-links`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(links),
+      });
+      if (response.ok) {
+        setLinks({ ...EMPTY_SOCIAL_LINKS, ...(await response.json()) });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="animate-fadeSlide max-w-3xl">
+      <div className="mb-8"><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF6B35]">Reach Us</p><h1 className="mt-2 text-3xl font-black tracking-tight">Social contact links</h1><p className={`mt-2 ${c.textMuted}`}>These links appear on the public Reach Us page. Leave a field empty to hide that platform.</p></div>
+      <form onSubmit={saveLinks} className={`rounded-xl border p-5 sm:p-7 ${c.surface} ${c.border}`}>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {socialFields.map(({ key, label, icon: Icon, placeholder }) => (
+            <label key={key} className="space-y-2"><span className={`flex items-center gap-2 text-sm font-semibold ${c.text}`}><Icon size={16} className="text-[#FF6B35]" /> {label}</span><input type="url" value={links[key]} onChange={event => setLinks(prev => ({ ...prev, [key]: event.target.value }))} placeholder={placeholder} disabled={loading} className={`w-full rounded-xl border bg-transparent px-3 py-2.5 text-sm outline-none focus:border-[#FF6B35] ${c.border} ${c.text}`} /></label>
+          ))}
+        </div>
+        <div className="mt-6 flex items-center gap-4"><button type="submit" disabled={loading || saving} className="rounded-xl bg-[#FF6B35] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#FF5A1F] disabled:opacity-50">{saving ? "Saving…" : "Save social links"}</button>{saved && <span className="text-sm font-semibold text-[#34D399]">Saved successfully.</span>}</div>
+      </form>
+    </div>
+  );
+}
+
 function AdminApp() {
   const [theme, setTheme] = useState<"dark" | "light">(
     () => (localStorage.getItem("firebox-theme") as "dark" | "light") || "dark"
   );
-  const [tab, setTab] = useState<"services" | "tutorials">("services");
+  const [tab, setTab] = useState<"services" | "tutorials" | "socials">("services");
   const c = useMemo(() => buildTokens(theme === "dark"), [theme]);
 
   useEffect(() => {
@@ -2141,7 +2238,7 @@ function AdminApp() {
         {/* Tab nav */}
         <div className={`border-b ${c.border} px-6`}>
           <div className="flex gap-1">
-            {(["services", "tutorials"] as const).map(t => (
+            {(["services", "tutorials", "socials"] as const).map(t => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -2151,7 +2248,7 @@ function AdminApp() {
                     : `border-transparent ${c.textMuted} hover:${c.text}`
                 }`}
               >
-                {t === "services" ? "Services" : "Tutorials"}
+                {t === "services" ? "Services" : t === "tutorials" ? "Tutorials" : "Social links"}
               </button>
             ))}
           </div>
@@ -2161,8 +2258,10 @@ function AdminApp() {
         <main className="mx-auto max-w-6xl px-6 py-8">
           {tab === "services" ? (
             <AdminView services={services} servicesLoading={servicesLoading} />
-          ) : (
+          ) : tab === "tutorials" ? (
             <TutorialsView isAdmin={true} initialTutorialId={sharedTutorialId} showToast={(message) => { setToastMsg(message); setTimeout(() => setToastMsg(""), 3000); }} />
+          ) : (
+            <SocialLinksView />
           )}
         </main>
       </div>
