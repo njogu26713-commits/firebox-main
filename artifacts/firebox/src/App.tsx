@@ -717,6 +717,68 @@ function WelcomeHome({ setActiveNav }: { setActiveNav: (key: string) => void }) 
   );
 }
 
+function ServicePage({ service, isFavorite, toggleFavorite, goBack }: any) {
+  const { c } = useUI();
+  const Icon = service.icon;
+  const color = CATEGORY_COLORS[service.category as keyof typeof CATEGORY_COLORS] || "#94A3B8";
+  const isComingSoon = service.status === "Coming Soon";
+
+  return (
+    <div className="animate-fadeSlide space-y-8 pb-12">
+      <button onClick={goBack} className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#FF6B35] ${c.textMuted}`}>
+        <ArrowRight size={16} className="rotate-180" /> Back to services
+      </button>
+
+      <section className="relative overflow-hidden rounded-[2rem] border p-6 shadow-xl sm:p-10 lg:p-12" style={{ background: `linear-gradient(135deg, ${color}18 0%, transparent 52%), ${c.isDark ? "#17191D" : "#FFFFFF"}`, borderColor: `${color}45` }}>
+        <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: `${color}20` }} />
+        <div className="relative grid gap-10 lg:grid-cols-[1fr_0.72fr] lg:items-center">
+          <div>
+            <div className="mb-6 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold" style={{ backgroundColor: `${color}18`, color }}><Icon size={14} /> {service.category}</span>
+              <StatusBadge status={service.status} />
+            </div>
+            <h1 className={`max-w-2xl text-4xl font-black tracking-[-0.04em] sm:text-6xl ${c.text}`}>{service.name}</h1>
+            <p className={`mt-4 max-w-xl text-xl leading-8 ${c.textMuted}`}>{service.tagline}</p>
+            <p className={`mt-5 max-w-2xl text-base leading-7 ${c.textMuted}`}>{service.description}</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button disabled={isComingSoon} onClick={() => service.url && window.open(service.url, "_blank", "noopener,noreferrer")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">
+                {isComingSoon ? "Join the waitlist" : "Open service"} <ArrowRight size={17} />
+              </button>
+              <button onClick={() => toggleFavorite(service.id)} className={`inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3.5 text-sm font-semibold transition-colors ${c.border} ${c.surfaceHover} ${isFavorite ? "text-[#FF6B35]" : c.text}`}>
+                <Star size={17} fill={isFavorite ? "#FF6B35" : "none"} /> {isFavorite ? "Saved" : "Save service"}
+              </button>
+            </div>
+          </div>
+
+          <div className={`relative overflow-hidden rounded-3xl border p-5 ${c.border} ${c.surfaceAlt}`}>
+            <div className="mb-8 flex items-center justify-between"><div className="flex items-center gap-2 text-sm font-bold"><FireboxMark size={20} /> Firebox preview</div><span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} /></div>
+            <div className="rounded-2xl border bg-white/[0.04] p-5" style={{ borderColor: `${color}35` }}>
+              <div className="flex items-start gap-4"><div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl" style={{ backgroundColor: `${color}20`, color }}><Icon size={27} /></div><div><p className={`text-lg font-bold ${c.text}`}>{service.name}</p><p className={`mt-1 text-sm ${c.textMuted}`}>{service.tagline}</p></div></div>
+              <div className="mt-6 space-y-3">{service.features.slice(0, 3).map((feature: string) => <div key={feature} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${c.surface} ${c.textMuted}`}><Check size={15} className="shrink-0 text-[#34D399]" /> {feature}</div>)}</div>
+            </div>
+            <p className={`mt-4 text-center text-xs ${c.textFaint}`}>{isComingSoon ? "This service is on its way." : "Everything you need, ready when you are."}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-8 lg:grid-cols-[1fr_0.72fr]">
+        <div className={`rounded-3xl border p-6 sm:p-8 ${c.surface} ${c.border}`}>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF6B35]">Inside the experience</p>
+          <h2 className={`mt-3 text-2xl font-black tracking-tight sm:text-3xl ${c.text}`}>Made to help you move with confidence.</h2>
+          <p className={`mt-4 max-w-2xl leading-7 ${c.textMuted}`}>Every part of {service.name} is designed to feel clear, useful, and easy to return to. Start small, explore at your own pace, and make it part of the way you work.</p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">{service.features.map((feature: string, index: number) => <div key={feature} className={`rounded-2xl p-4 ${c.surfaceAlt}`}><div className="mb-4 flex h-8 w-8 items-center justify-center rounded-lg bg-[#FF6B35]/10 text-sm font-black text-[#FF6B35]">0{index + 1}</div><p className={`text-sm font-semibold leading-6 ${c.text}`}>{feature}</p></div>)}</div>
+        </div>
+        <div className={`rounded-3xl border p-6 sm:p-8 ${c.surfaceAlt} ${c.border}`}>
+          <p className={`text-xs font-bold uppercase tracking-[0.18em] ${c.textFaint}`}>A good place to start</p>
+          <h2 className={`mt-3 text-2xl font-black tracking-tight ${c.text}`}>Your next useful thing is closer than you think.</h2>
+          <p className={`mt-4 text-sm leading-6 ${c.textMuted}`}>Come back whenever you need a little momentum. Firebox keeps the experience simple, focused, and ready for what is next.</p>
+          <button onClick={goBack} className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[#FF6B35] hover:text-[#FF5A1F]">Explore other services <ArrowRight size={16} /></button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 // --- MAIN APP ---
 
 function MainApp() {
@@ -817,6 +879,15 @@ function MainApp() {
           />
           
           <main className="flex-1 px-4 py-8 sm:px-8 sm:py-10 max-w-7xl mx-auto w-full">
+            {selectedService ? (
+              <ServicePage
+                service={selectedService}
+                isFavorite={favorites.has(selectedService.id)}
+                toggleFavorite={toggleFavorite}
+                goBack={() => setSelectedServiceId(null)}
+              />
+            ) : (
+            <>
             {/* Context Header */}
             {activeNav !== "home" && activeNav !== "settings" && activeNav !== "categories" && !query && (
               <div className="mb-10 animate-fadeSlide">
@@ -980,18 +1051,10 @@ function MainApp() {
                 )}
               </div>
             )}
+                      </>
+            )}
           </main>
         </div>
-
-        {/* Modal Overlay */}
-        {selectedService && (
-          <ServiceDetailModal 
-            service={selectedService} 
-            isFavorite={favorites.has(selectedService.id)} 
-            toggleFavorite={toggleFavorite} 
-            close={() => setSelectedServiceId(null)} 
-          />
-        )}
 
         {/* Toast Notification */}
         {toastMsg && (
