@@ -719,7 +719,7 @@ function WelcomeHome({ setActiveNav }: { setActiveNav: (key: string) => void }) 
   );
 }
 
-function ServicePage({ service, isFavorite, toggleFavorite, goBack }: any) {
+function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPreview }: any) {
   const { c } = useUI();
   const Icon = service.icon;
   const color = CATEGORY_COLORS[service.category as keyof typeof CATEGORY_COLORS] || "#94A3B8";
@@ -747,7 +747,7 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack }: any) {
           </div>
           <p className={`mt-7 max-w-2xl text-base leading-7 ${c.textMuted}`}>{service.description}</p>
           <div className="mt-7 flex flex-wrap items-center gap-3">
-            <button disabled={isComingSoon} onClick={() => service.url && window.open(service.url, "_blank", "noopener,noreferrer")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">{isComingSoon ? "Join the waitlist" : "Open service"} <ArrowRight size={17} /></button>
+            <button disabled={isComingSoon} onClick={onOpenPreview} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">{isComingSoon ? "Join the waitlist" : "Preview service"} <ArrowRight size={17} /></button>
             <button onClick={() => toggleFavorite(service.id)} className={`inline-flex items-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-colors ${c.border} ${c.surfaceHover} ${isFavorite ? "text-[#FF6B35]" : c.text}`}><Star size={17} fill={isFavorite ? "#FF6B35" : "none"} /> {isFavorite ? "Saved" : "Save service"}</button>
           </div>
         </div>
@@ -766,6 +766,34 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack }: any) {
         <div><p className={`text-sm font-semibold ${c.text}`}>{isComingSoon ? "This service is on its way." : "Ready when you are."}</p><p className={`mt-1 text-sm ${c.textMuted}`}>Explore more tools or return to the service collection.</p></div>
         <button onClick={goBack} className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-[#FF6B35] hover:text-[#FF5A1F]">Back to services <ArrowRight size={16} /></button>
       </section>
+    </div>
+  );
+}
+
+function LivePreviewPage({ service, goBack }: { service: any; goBack: () => void }) {
+  const { c } = useUI();
+  const Icon = service.icon;
+  const color = CATEGORY_COLORS[service.category as keyof typeof CATEGORY_COLORS] || "#94A3B8";
+  const hasUrl = typeof service.url === "string" && service.url.trim().length > 0;
+
+  return (
+    <div className="animate-fadeSlide space-y-5 pb-10">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <button onClick={goBack} className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#FF6B35] ${c.textMuted}`}><ArrowRight size={16} className="rotate-180" /> Back to {service.name}</button>
+        {hasUrl && <button onClick={() => window.open(service.url, "_blank", "noopener,noreferrer")} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition-colors hover:border-[#FF6B35] hover:text-[#FF6B35] ${c.border} ${c.text}`}>Open in browser <ArrowRight size={14} /></button>}
+      </div>
+      <div className={`flex items-center gap-3 border-b pb-4 ${c.border}`}>
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: `${color}18`, color }}><Icon size={18} /></div>
+        <div><h1 className={`text-lg font-bold ${c.text}`}>{service.name}</h1><p className={`text-xs ${c.textMuted}`}>Live preview inside Firebox</p></div>
+      </div>
+      <div className={`relative min-h-[68vh] overflow-hidden rounded-2xl border ${c.border} ${c.surface}`}>
+        {hasUrl ? (
+          <iframe title={`${service.name} live preview`} src={service.url} className="h-[68vh] w-full border-0 bg-white" allow="fullscreen; autoplay" />
+        ) : (
+          <div className="flex min-h-[68vh] flex-col items-center justify-center px-6 text-center"><div className="flex h-16 w-16 items-center justify-center rounded-2xl" style={{ backgroundColor: `${color}18`, color }}><Icon size={30} /></div><h2 className={`mt-5 text-2xl font-black ${c.text}`}>Preview coming soon</h2><p className={`mt-3 max-w-md leading-7 ${c.textMuted}`}>{service.name} does not have a live preview URL yet. You can return to the service page for details and updates.</p><button onClick={goBack} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-3 text-sm font-bold text-white hover:bg-[#FF5A1F]">Back to service <ArrowRight size={16} /></button></div>
+        )}
+      </div>
+      {hasUrl && <p className={`text-center text-xs ${c.textFaint}`}>If the preview is blocked by the service, use “Open in browser” to view it directly.</p>}
     </div>
   );
 }
@@ -831,6 +859,7 @@ function MainApp() {
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [previewServiceId, setPreviewServiceId] = useState<string | null>(null);
   
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     const saved = localStorage.getItem("firebox-favorites");
@@ -899,6 +928,7 @@ function MainApp() {
   }, [activeNav, query, favorites, services]);
 
   const selectedService = services.find(s => s.id === selectedServiceId);
+  const previewService = services.find(s => s.id === previewServiceId);
 
   return (
     <UIContext.Provider value={{ theme, toggleTheme, c }}>
@@ -920,11 +950,14 @@ function MainApp() {
           />
           
           <main className="flex-1 px-4 py-8 sm:px-8 sm:py-10 max-w-7xl mx-auto w-full">
-            {selectedService ? (
+            {previewService ? (
+              <LivePreviewPage service={previewService} goBack={() => setPreviewServiceId(null)} />
+            ) : selectedService ? (
               <ServicePage
                 service={selectedService}
                 isFavorite={favorites.has(selectedService.id)}
                 toggleFavorite={toggleFavorite}
+                onOpenPreview={() => setPreviewServiceId(selectedService.id)}
                 goBack={() => setSelectedServiceId(null)}
               />
             ) : (
