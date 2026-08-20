@@ -888,7 +888,7 @@ function MainApp() {
     () => (localStorage.getItem("firebox-theme") as "dark" | "light") || "dark"
   );
   
-  const [activeNav, setActiveNav] = useState("home");
+  const [activeNav, setActiveNav] = useState(() => window.location.pathname.match(/\/tutorial\//) ? "tutorials" : "home");
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(() => {
@@ -896,6 +896,10 @@ function MainApp() {
     return match ? decodeURIComponent(match[1]) : null;
   });
   const [previewServiceId, setPreviewServiceId] = useState<string | null>(null);
+  const [sharedTutorialId] = useState<string | null>(() => {
+    const match = window.location.pathname.match(/\/tutorial\/([^/]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  });
   
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     const saved = localStorage.getItem("firebox-favorites");
@@ -1027,7 +1031,7 @@ function MainApp() {
             ) : activeNav === "ai" && !query ? (
               <AIView />
             ) : activeNav === "tutorials" && !query ? (
-              <TutorialsView isAdmin={false} />
+              <TutorialsView isAdmin={false} initialTutorialId={sharedTutorialId} showToast={(message) => { setToastMsg(message); setTimeout(() => setToastMsg(""), 3000); }} />
             ) : activeNav === "categories" && !query ? (
               <div className="animate-fadeSlide">
                 <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-8">Categories</h1>
@@ -1191,7 +1195,7 @@ function MainApp() {
   );
 }
 
-function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
+function TutorialsView({ isAdmin, initialTutorialId, showToast }: { isAdmin: boolean; initialTutorialId?: string | null; showToast?: (message: string) => void }) {
   const { c } = useUI();
   const BASE = import.meta.env.BASE_URL as string;
 
@@ -1231,6 +1235,22 @@ function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
   };
 
   useEffect(() => { fetchTutorials(); }, []);
+
+  useEffect(() => {
+    if (!initialTutorialId || tutorials.length === 0) return;
+    const sharedTutorial = tutorials.find(t => t._id === initialTutorialId);
+    if (sharedTutorial) setActiveVideo(sharedTutorial);
+  }, [initialTutorialId, tutorials]);
+
+  const copyTutorialLink = async (id: string) => {
+    const tutorialLink = `${window.location.origin}${BASE}tutorial/${encodeURIComponent(id)}`;
+    try {
+      await navigator.clipboard.writeText(tutorialLink);
+      showToast?.("Tutorial link copied");
+    } catch {
+      showToast?.("Could not copy the tutorial link");
+    }
+  };
 
   const openModal = () => {
     setFormTitle("");
@@ -1497,6 +1517,9 @@ function TutorialsView({ isAdmin }: { isAdmin: boolean }) {
                       Download
                     </a>
                   )}
+                  <button onClick={() => copyTutorialLink(t._id)} className={`inline-flex items-center gap-1 text-xs font-semibold text-[#FF6B35] hover:text-[#FF5A1F]`}>
+                    <Copy size={13} /> Copy link
+                  </button>
                   {isAdmin && (
                     <button
                       onClick={() => deleteTutorial(t._id)}
@@ -2139,7 +2162,7 @@ function AdminApp() {
           {tab === "services" ? (
             <AdminView services={services} servicesLoading={servicesLoading} />
           ) : (
-            <TutorialsView isAdmin={true} />
+            <TutorialsView isAdmin={true} initialTutorialId={sharedTutorialId} showToast={(message) => { setToastMsg(message); setTimeout(() => setToastMsg(""), 3000); }} />
           )}
         </main>
       </div>
