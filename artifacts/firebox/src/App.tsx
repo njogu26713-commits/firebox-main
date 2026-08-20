@@ -4,7 +4,7 @@ import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
   Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight,
-  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo, Mail, MapPin, PhoneCall
+  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo, Mail, MapPin, PhoneCall, Link2
 } from "lucide-react";
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -724,6 +724,7 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
   const Icon = service.icon;
   const color = CATEGORY_COLORS[service.category as keyof typeof CATEGORY_COLORS] || "#94A3B8";
   const isComingSoon = service.status === "Coming Soon";
+  const hasUrl = typeof service.url === "string" && service.url.trim().length > 0;
 
   return (
     <div className="animate-fadeSlide space-y-10 pb-12">
@@ -746,6 +747,15 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
             </div>
           </div>
           <p className={`mt-7 max-w-2xl text-base leading-7 ${c.textMuted}`}>{service.description}</p>
+          {hasUrl && (
+            <div className="mt-5 max-w-2xl">
+              <p className={`text-xs font-bold uppercase tracking-[0.16em] ${c.textFaint}`}>Service URL</p>
+              <a href={service.url} target="_blank" rel="noreferrer" className={`mt-2 inline-flex max-w-full items-center gap-2 text-sm font-semibold text-[#FF6B35] hover:text-[#FF5A1F]`}>
+                <Link2 size={15} className="shrink-0" />
+                <span className="truncate">{service.url}</span>
+              </a>
+            </div>
+          )}
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <button disabled={isComingSoon} onClick={onOpenPreview} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">{isComingSoon ? "Join the waitlist" : "Preview service"} <ArrowRight size={17} /></button>
             <button onClick={() => toggleFavorite(service.id)} className={`inline-flex items-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-colors ${c.border} ${c.surfaceHover} ${isFavorite ? "text-[#FF6B35]" : c.text}`}><Star size={17} fill={isFavorite ? "#FF6B35" : "none"} /> {isFavorite ? "Saved" : "Save service"}</button>
@@ -809,30 +819,29 @@ function ReachUsView({ showToast }: { showToast: (message: string) => void }) {
   };
 
   return (
-    <div className="animate-fadeSlide space-y-8 pb-12">
-      <section className="relative overflow-hidden rounded-[2rem] border border-[#FFB347]/30 bg-[#17191D] px-6 py-10 text-white shadow-2xl shadow-[#FF6B35]/10 sm:px-10 sm:py-14 lg:px-14">
-        <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[#FF6B35]/20 blur-3xl" />
+    <div className="animate-fadeSlide max-w-5xl space-y-10 pb-12">
+      <section className="relative py-2">
         <div className="relative max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#FFB347]"><Mail size={14} /> We’d love to hear from you</div>
-          <h1 className="text-4xl font-black leading-[1.04] tracking-[-0.04em] sm:text-6xl">Let’s make Firebox better together.</h1>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-white/65 sm:text-lg">Have a question, an idea, or something you want to see in Firebox? Reach out and tell us what is on your mind.</p>
+          <div className="mb-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#FF6B35]"><Mail size={14} /> We’d love to hear from you</div>
+          <h1 className={`text-4xl font-black leading-[1.04] tracking-[-0.04em] sm:text-6xl ${c.text}`}>Let’s make Firebox better together.</h1>
+          <p className={`mt-5 max-w-2xl text-base leading-7 sm:text-lg ${c.textMuted}`}>Have a question, an idea, or something you want to see in Firebox? Reach out and tell us what is on your mind.</p>
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr]">
+      <section className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
         <div className="space-y-4">
           {[
             { icon: Mail, title: "Email us", value: "hello@firebox.app", copy: "For questions, feedback, and ideas." },
             { icon: PhoneCall, title: "Talk to the team", value: "We usually reply within 1–2 days", copy: "We read every message carefully." },
             { icon: MapPin, title: "Built for everyone", value: "Online, wherever you are", copy: "Firebox is made to feel close, wherever you work." },
           ].map(({ icon: Icon, title, value, copy }) => (
-            <div key={title} className={`rounded-2xl border p-5 ${c.surface} ${c.border}`}>
+            <div key={title} className={`border-b py-5 first:pt-0 last:border-b-0 ${c.border}`}>
               <div className="flex items-start gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><Icon size={19} /></div><div><h2 className={`font-bold ${c.text}`}>{title}</h2><p className="mt-1 text-sm font-semibold text-[#FF6B35]">{value}</p><p className={`mt-1 text-sm leading-6 ${c.textMuted}`}>{copy}</p></div></div>
             </div>
           ))}
         </div>
 
-        <div className={`rounded-3xl border p-6 sm:p-8 ${c.surface} ${c.border}`}>
+        <div className={`lg:border-l lg:pl-10 ${c.border}`}>
           {submitted ? (
             <div className="flex min-h-[340px] flex-col items-center justify-center text-center"><div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#34D399]/15 text-[#34D399]"><Check size={28} /></div><h2 className={`mt-5 text-2xl font-black ${c.text}`}>Thanks for reaching out.</h2><p className={`mt-3 max-w-md leading-7 ${c.textMuted}`}>Your note is on its way to the Firebox team. We’ll get back to you as soon as we can.</p><button onClick={() => setSubmitted(false)} className="mt-7 text-sm font-bold text-[#FF6B35] hover:text-[#FF5A1F]">Send another message</button></div>
           ) : (
