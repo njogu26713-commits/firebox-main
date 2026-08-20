@@ -537,9 +537,9 @@ function ServiceCard({ service, isFavorite, toggleFavorite, onClick }: any) {
   return (
     <article
       onClick={onClick}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 lg:aspect-square ${c.surface} ${c.border} hover:-translate-y-1 hover:shadow-lg ${c.surfaceHover}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 ${c.surface} ${c.border} hover:-translate-y-1 hover:shadow-lg ${c.surfaceHover}`}
     >
-      <div className="relative aspect-square overflow-hidden lg:aspect-auto lg:min-h-0 lg:flex-1" style={{ background: `linear-gradient(135deg, ${color}28, ${color}08 55%, transparent)` }}>
+      <div className="relative aspect-square overflow-hidden" style={{ background: `linear-gradient(135deg, ${color}28, ${color}08 55%, transparent)` }}>
         {service.iconUrl ? (
           <img src={service.iconUrl} alt={service.name} className="h-full w-full bg-black/5 object-contain p-2 transition-transform duration-500 group-hover:scale-[1.02]" />
         ) : (
