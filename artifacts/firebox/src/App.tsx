@@ -736,14 +736,14 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
   const hasUrl = typeof service.url === "string" && service.url.trim().length > 0;
 
   return (
-    <div className="animate-fadeSlide space-y-10 pb-12">
+    <div className="animate-fadeSlide space-y-6 pb-8">
       <button onClick={goBack} className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-[#FF6B35] ${c.textMuted}`}>
         <ArrowRight size={16} className="rotate-180" /> Back to services
       </button>
 
-      <section className="relative overflow-hidden py-3 sm:py-6">
-        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: `${color}12` }} />
-        <div className="relative max-w-3xl">
+      <section className={`relative overflow-hidden rounded-xl border p-5 sm:p-7 ${c.surface} ${c.border}`}>
+        <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full blur-3xl" style={{ backgroundColor: `${color}12` }} />
+        <div className="relative">
           <div className="mb-5 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold" style={{ backgroundColor: `${color}18`, color }}><Icon size={14} /> {service.category}</span>
             <StatusBadge status={service.status} />
@@ -755,9 +755,9 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
               <p className={`mt-3 text-lg leading-7 ${c.textMuted}`}>{service.tagline}</p>
             </div>
           </div>
-          <p className={`mt-7 max-w-2xl text-base leading-7 ${c.textMuted}`}>{service.description}</p>
+          <p className={`mt-4 max-w-2xl text-base leading-7 ${c.textMuted}`}>{service.description}</p>
           {hasUrl && (
-            <div className="mt-5 max-w-2xl">
+            <div className="mt-3 max-w-2xl">
               <p className={`text-xs font-bold uppercase tracking-[0.16em] ${c.textFaint}`}>Service URL</p>
               <button type="button" onClick={onOpenPreview} className={`mt-2 inline-flex max-w-full items-center gap-2 text-left text-sm font-semibold text-[#FF6B35] hover:text-[#FF5A1F]`}>
                 <Link2 size={15} className="shrink-0" />
@@ -765,7 +765,7 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
               </button>
             </div>
           )}
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             <button disabled={isComingSoon} onClick={onOpenPreview} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">{isComingSoon ? "Join the waitlist" : "Preview service"} <ArrowRight size={17} /></button>
             <button onClick={() => toggleFavorite(service.id)} className={`inline-flex items-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-colors ${c.border} ${c.surfaceHover} ${isFavorite ? "text-[#FF6B35]" : c.text}`}><Star size={17} fill={isFavorite ? "#FF6B35" : "none"} /> {isFavorite ? "Saved" : "Save service"}</button>
           </div>
@@ -774,11 +774,11 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
 
       <div className={`h-px w-full ${c.border}`} />
 
-      <section className="max-w-3xl py-2">
+      <section className="max-w-3xl py-1">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF6B35]">What you can do</p>
-        <h2 className={`mt-3 text-2xl font-black tracking-tight sm:text-3xl ${c.text}`}>Everything you need to get started.</h2>
-        <p className={`mt-3 max-w-2xl leading-7 ${c.textMuted}`}>{service.name} is designed to keep the experience clear, useful, and easy to return to.</p>
-        <div className="mt-7 grid gap-x-8 gap-y-5 sm:grid-cols-2">{service.features.map((feature: string, index: number) => <div key={feature} className="flex items-start gap-3"><span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF6B35]/10 text-xs font-bold text-[#FF6B35]">{index + 1}</span><p className={`text-sm font-semibold leading-6 ${c.text}`}>{feature}</p></div>)}</div>
+        <h2 className={`mt-2 text-2xl font-black tracking-tight sm:text-3xl ${c.text}`}>Everything you need to get started.</h2>
+        <p className={`mt-2 max-w-2xl leading-7 ${c.textMuted}`}>{service.name} is designed to keep the experience clear, useful, and easy to return to.</p>
+        <div className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">{service.features.map((feature: string, index: number) => <div key={feature} className="flex items-start gap-3"><span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF6B35]/10 text-xs font-bold text-[#FF6B35]">{index + 1}</span><p className={`text-sm font-semibold leading-6 ${c.text}`}>{feature}</p></div>)}</div>
       </section>
 
       <section className={`flex max-w-3xl flex-col gap-4 border-l-2 pl-5 sm:flex-row sm:items-center sm:justify-between sm:pl-6 ${c.border}`}>
@@ -828,8 +828,8 @@ function ReachUsView({ showToast }: { showToast: (message: string) => void }) {
   };
 
   return (
-    <div className="animate-fadeSlide max-w-5xl space-y-10 pb-12">
-      <section className="relative py-2">
+    <div className="animate-fadeSlide max-w-5xl space-y-6 pb-8">
+      <section className={`relative overflow-hidden rounded-xl border p-5 sm:p-7 ${c.surface} ${c.border}`}>
         <div className="relative max-w-3xl">
           <div className="mb-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[#FF6B35]"><Mail size={14} /> We’d love to hear from you</div>
           <h1 className={`text-4xl font-black leading-[1.04] tracking-[-0.04em] sm:text-6xl ${c.text}`}>Let’s make Firebox better together.</h1>
@@ -837,24 +837,24 @@ function ReachUsView({ showToast }: { showToast: (message: string) => void }) {
         </div>
       </section>
 
-      <section className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
-        <div className="space-y-4">
+      <section className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:gap-10">
+        <div className="space-y-3">
           {[
             { icon: Mail, title: "Email us", value: "hello@firebox.app", copy: "For questions, feedback, and ideas." },
             { icon: PhoneCall, title: "Talk to the team", value: "We usually reply within 1–2 days", copy: "We read every message carefully." },
             { icon: MapPin, title: "Built for everyone", value: "Online, wherever you are", copy: "Firebox is made to feel close, wherever you work." },
           ].map(({ icon: Icon, title, value, copy }) => (
-            <div key={title} className={`border-b py-5 first:pt-0 last:border-b-0 ${c.border}`}>
+            <div key={title} className={`border-b py-3 first:pt-0 last:border-b-0 ${c.border}`}>
               <div className="flex items-start gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><Icon size={19} /></div><div><h2 className={`font-bold ${c.text}`}>{title}</h2><p className="mt-1 text-sm font-semibold text-[#FF6B35]">{value}</p><p className={`mt-1 text-sm leading-6 ${c.textMuted}`}>{copy}</p></div></div>
             </div>
           ))}
         </div>
 
-        <div className={`lg:border-l lg:pl-10 ${c.border}`}>
+        <div className={`lg:border-l lg:pl-8 ${c.border}`}>
           {submitted ? (
             <div className="flex min-h-[340px] flex-col items-center justify-center text-center"><div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#34D399]/15 text-[#34D399]"><Check size={28} /></div><h2 className={`mt-5 text-2xl font-black ${c.text}`}>Thanks for reaching out.</h2><p className={`mt-3 max-w-md leading-7 ${c.textMuted}`}>Your note is on its way to the Firebox team. We’ll get back to you as soon as we can.</p><button onClick={() => setSubmitted(false)} className="mt-7 text-sm font-bold text-[#FF6B35] hover:text-[#FF5A1F]">Send another message</button></div>
           ) : (
-            <form onSubmit={submitForm} className="space-y-5">
+            <form onSubmit={submitForm} className="space-y-4">
               <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF6B35]">Send a note</p><h2 className={`mt-2 text-2xl font-black tracking-tight ${c.text}`}>What can we help with?</h2><p className={`mt-2 text-sm leading-6 ${c.textMuted}`}>Whether it’s a question or a bright idea, this is a good place to start.</p></div>
               <div className="grid gap-5 sm:grid-cols-2"><label className="space-y-2"><span className={`text-sm font-semibold ${c.text}`}>Your name</span><input required name="name" placeholder="Jane Doe" className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-[#FF6B35] ${c.surfaceAlt} ${c.border} ${c.text}`} /></label><label className="space-y-2"><span className={`text-sm font-semibold ${c.text}`}>Email address</span><input required type="email" name="email" placeholder="jane@example.com" className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-[#FF6B35] ${c.surfaceAlt} ${c.border} ${c.text}`} /></label></div>
               <label className="block space-y-2"><span className={`text-sm font-semibold ${c.text}`}>How can we help?</span><textarea required name="message" rows={6} placeholder="Tell us what’s on your mind..." className={`w-full resize-none rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-[#FF6B35] ${c.surfaceAlt} ${c.border} ${c.text}`} /></label>
