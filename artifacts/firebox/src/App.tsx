@@ -4,7 +4,7 @@ import {
   Search, Bell, Home, Compass, LayoutGrid, Layers, Clock, TrendingUp,
   Star, Settings, Menu, X, Sun, Moon, Check, MessageCircle, Film, Handshake,
   Code2, Terminal, Contact, FileText, KeyRound, QrCode, Store, Radio, CheckSquare, GitBranch, Sparkles, ArrowRight,
-  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo, Mail, MapPin, PhoneCall, Link2
+  Plus, Pencil, Trash2, BarChart2, Bot, Send, User, BookOpen, PlayCircle, Upload, FileVideo, Mail, MapPin, PhoneCall, Link2, Copy
 } from "lucide-react";
 
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -728,12 +728,22 @@ function WelcomeHome({ setActiveNav }: { setActiveNav: (key: string) => void }) 
   );
 }
 
-function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPreview }: any) {
+function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPreview, showToast }: any) {
   const { c } = useUI();
   const Icon = service.icon;
   const color = CATEGORY_COLORS[service.category as keyof typeof CATEGORY_COLORS] || "#94A3B8";
   const isComingSoon = service.status === "Coming Soon";
   const hasUrl = typeof service.url === "string" && service.url.trim().length > 0;
+  const serviceLink = `${window.location.origin}${import.meta.env.BASE_URL}service/${encodeURIComponent(service.id)}`;
+
+  const copyServiceLink = async () => {
+    try {
+      await navigator.clipboard.writeText(serviceLink);
+      showToast?.("Service link copied");
+    } catch {
+      showToast?.("Could not copy the service link");
+    }
+  };
 
   return (
     <div className="animate-fadeSlide space-y-6 pb-8">
@@ -772,6 +782,7 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <button disabled={isComingSoon} onClick={onOpenPreview} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">{isComingSoon ? "Join the waitlist" : "Preview service"} <ArrowRight size={17} /></button>
             <button onClick={() => toggleFavorite(service.id)} className={`inline-flex items-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-colors ${c.border} ${c.surfaceHover} ${isFavorite ? "text-[#FF6B35]" : c.text}`}><Star size={17} fill={isFavorite ? "#FF6B35" : "none"} /> {isFavorite ? "Saved" : "Save service"}</button>
+            <button onClick={copyServiceLink} className={`inline-flex items-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-colors ${c.border} ${c.surfaceHover} ${c.text}`}><Copy size={16} /> Copy link</button>
           </div>
         </div>
       </section>
@@ -880,7 +891,10 @@ function MainApp() {
   const [activeNav, setActiveNav] = useState("home");
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(() => {
+    const match = window.location.pathname.match(/\/service\/([^/]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  });
   const [previewServiceId, setPreviewServiceId] = useState<string | null>(null);
   
   const [favorites, setFavorites] = useState<Set<string>>(() => {
@@ -981,6 +995,7 @@ function MainApp() {
                 toggleFavorite={toggleFavorite}
                 onOpenPreview={() => setPreviewServiceId(selectedService.id)}
                 goBack={() => setSelectedServiceId(null)}
+                showToast={(message: string) => { setToastMsg(message); setTimeout(() => setToastMsg(""), 3000); }}
               />
             ) : (
             <>
