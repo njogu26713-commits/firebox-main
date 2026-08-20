@@ -130,7 +130,11 @@ router.delete("/services/:id", async (req, res): Promise<void> => {
     const db = await getDb();
     const col = db.collection("services");
 
-    const result = await col.findOneAndDelete({ id: req.params.id });
+    const filters: Record<string, unknown>[] = [{ id: req.params.id }];
+    if (ObjectId.isValid(req.params.id)) {
+      filters.push({ _id: new ObjectId(req.params.id) });
+    }
+    const result = await col.findOneAndDelete({ $or: filters });
     if (!result) {
       res.status(404).json({ error: "Service not found" });
       return;
