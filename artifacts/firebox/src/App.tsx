@@ -640,6 +640,83 @@ function ServiceDetailModal({ service, close, isFavorite, toggleFavorite }: any)
   );
 }
 
+function WelcomeHome({ setActiveNav }: { setActiveNav: (key: string) => void }) {
+  const { c } = useUI();
+
+  return (
+    <div className="animate-fadeSlide space-y-10 pb-10">
+      <section className="relative overflow-hidden rounded-[2rem] border border-[#FFB347]/30 bg-[#17191D] px-6 py-10 text-white shadow-2xl shadow-[#FF6B35]/10 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
+        <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[#FF6B35]/20 blur-3xl" />
+        <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-[#FFB347]/10 blur-3xl" />
+        <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="max-w-2xl">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#FFB347]">
+              <Sparkles size={14} />
+              Your digital home base
+            </div>
+            <h1 className="max-w-xl text-4xl font-black leading-[1.02] tracking-[-0.04em] sm:text-6xl">
+              Welcome to a smarter way to get things done.
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg">
+              Firebox brings useful tools, creative spaces, and everyday shortcuts together in one place—so you can spend less time searching and more time moving forward.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={() => setActiveNav("explore")}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98]"
+              >
+                Explore Firebox <ArrowRight size={17} />
+              </button>
+              <button
+                onClick={() => setActiveNav("categories")}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 active:scale-[0.98]"
+              >
+                Browse by category <LayoutGrid size={17} />
+              </button>
+            </div>
+          </div>
+
+          <div className="relative mx-auto w-full max-w-sm lg:justify-self-end">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.07] p-4 shadow-2xl backdrop-blur-sm">
+              <div className="flex items-center justify-between border-b border-white/10 px-2 pb-4">
+                <div className="flex items-center gap-2 text-sm font-semibold"><FireboxMark size={20} /> Firebox</div>
+                <span className="flex items-center gap-1.5 text-xs text-[#86EFAC]"><span className="h-1.5 w-1.5 rounded-full bg-[#86EFAC]" /> Ready for you</span>
+              </div>
+              <div className="space-y-3 p-2 pt-5">
+                <div className="rounded-2xl bg-white/[0.08] p-4">
+                  <div className="flex items-center gap-3"><div className="rounded-xl bg-[#FF6B35]/15 p-2.5 text-[#FF8A5B]"><MessageCircle size={20} /></div><div><p className="text-sm font-semibold">Start with what matters</p><p className="mt-1 text-xs text-white/45">Find your next useful idea</p></div></div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl bg-[#FFB347]/10 p-4"><Code2 size={19} className="text-[#FFB347]" /><p className="mt-5 text-sm font-semibold">Build freely</p><p className="mt-1 text-xs text-white/45">Tools for momentum</p></div>
+                  <div className="rounded-2xl bg-[#38BDF8]/10 p-4"><Compass size={19} className="text-[#38BDF8]" /><p className="mt-5 text-sm font-semibold">Discover more</p><p className="mt-1 text-xs text-white/45">A space that grows</p></div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -bottom-5 -left-5 rounded-2xl border border-white/10 bg-[#24272D] px-4 py-3 shadow-xl">
+              <p className="text-xs text-white/45">Good things start here</p>
+              <p className="mt-1 text-sm font-bold text-[#FFB347]">Make yourself at home.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        {[
+          { icon: Compass, title: "Find your next move", copy: "Explore a growing collection of thoughtful tools made for real life." },
+          { icon: Sparkles, title: "Keep it simple", copy: "A calm, focused space to discover what helps you work and create better." },
+          { icon: Handshake, title: "Grow with us", copy: "Firebox is being built around people, ideas, and useful connections." },
+        ].map(({ icon: Icon, title, copy }) => (
+          <div key={title} className={`rounded-2xl border p-5 transition-transform duration-200 hover:-translate-y-1 ${c.surface} ${c.border}`}>
+            <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><Icon size={20} /></div>
+            <h2 className={`text-base font-bold ${c.text}`}>{title}</h2>
+            <p className={`mt-2 text-sm leading-6 ${c.textMuted}`}>{copy}</p>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
 // --- MAIN APP ---
 
 function MainApp() {
@@ -741,7 +818,7 @@ function MainApp() {
           
           <main className="flex-1 px-4 py-8 sm:px-8 sm:py-10 max-w-7xl mx-auto w-full">
             {/* Context Header */}
-            {activeNav !== "settings" && activeNav !== "categories" && !query && (
+            {activeNav !== "home" && activeNav !== "settings" && activeNav !== "categories" && !query && (
               <div className="mb-10 animate-fadeSlide">
                 <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{NAV_TITLES[activeNav] || "Services"}</h1>
                 {activeNav === "explore" && (
@@ -761,7 +838,9 @@ function MainApp() {
             )}
 
             {/* Categories View */}
-            {activeNav === "ai" && !query ? (
+            {activeNav === "home" && !query ? (
+              <WelcomeHome setActiveNav={setActiveNav} />
+            ) : activeNav === "ai" && !query ? (
               <AIView />
             ) : activeNav === "tutorials" && !query ? (
               <TutorialsView isAdmin={false} />
