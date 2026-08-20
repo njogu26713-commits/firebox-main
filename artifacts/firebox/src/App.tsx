@@ -750,10 +750,10 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
           {hasUrl && (
             <div className="mt-5 max-w-2xl">
               <p className={`text-xs font-bold uppercase tracking-[0.16em] ${c.textFaint}`}>Service URL</p>
-              <a href={service.url} target="_blank" rel="noreferrer" className={`mt-2 inline-flex max-w-full items-center gap-2 text-sm font-semibold text-[#FF6B35] hover:text-[#FF5A1F]`}>
+              <button type="button" onClick={onOpenPreview} className={`mt-2 inline-flex max-w-full items-center gap-2 text-left text-sm font-semibold text-[#FF6B35] hover:text-[#FF5A1F]`}>
                 <Link2 size={15} className="shrink-0" />
                 <span className="truncate">{service.url}</span>
-              </a>
+              </button>
             </div>
           )}
           <div className="mt-7 flex flex-wrap items-center gap-3">
