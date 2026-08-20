@@ -646,11 +646,11 @@ function WelcomeHome({ setActiveNav }: { setActiveNav: (key: string) => void }) 
   const { c } = useUI();
 
   return (
-    <div className="animate-fadeSlide space-y-10 pb-10">
-      <section className="relative overflow-hidden rounded-[2rem] border border-[#FFB347]/30 bg-[#17191D] px-6 py-10 text-white shadow-2xl shadow-[#FF6B35]/10 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
+    <div className="animate-fadeSlide space-y-6 pb-8">
+      <section className="relative overflow-hidden rounded-2xl border border-[#FFB347]/30 bg-[#17191D] px-6 py-8 text-white shadow-2xl shadow-[#FF6B35]/10 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
         <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[#FF6B35]/20 blur-3xl" />
         <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-[#FFB347]/10 blur-3xl" />
-        <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="relative grid items-center gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="max-w-2xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#FFB347]">
               <Sparkles size={14} />
@@ -679,22 +679,22 @@ function WelcomeHome({ setActiveNav }: { setActiveNav: (key: string) => void }) 
           </div>
 
           <div className="relative mx-auto w-full max-w-sm lg:justify-self-end">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.07] p-4 shadow-2xl backdrop-blur-sm">
+            <div className="rounded-xl border border-white/10 bg-white/[0.07] p-3 shadow-2xl backdrop-blur-sm">
               <div className="flex items-center justify-between border-b border-white/10 px-2 pb-4">
                 <div className="flex items-center gap-2 text-sm font-semibold"><FireboxMark size={20} /> Firebox</div>
                 <span className="flex items-center gap-1.5 text-xs text-[#86EFAC]"><span className="h-1.5 w-1.5 rounded-full bg-[#86EFAC]" /> Ready for you</span>
               </div>
               <div className="space-y-3 p-2 pt-5">
-                <div className="rounded-2xl bg-white/[0.08] p-4">
+                <div className="rounded-lg bg-white/[0.08] p-3">
                   <div className="flex items-center gap-3"><div className="rounded-xl bg-[#FF6B35]/15 p-2.5 text-[#FF8A5B]"><MessageCircle size={20} /></div><div><p className="text-sm font-semibold">Start with what matters</p><p className="mt-1 text-xs text-white/45">Find your next useful idea</p></div></div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl bg-[#FFB347]/10 p-4"><Code2 size={19} className="text-[#FFB347]" /><p className="mt-5 text-sm font-semibold">Build freely</p><p className="mt-1 text-xs text-white/45">Tools for momentum</p></div>
-                  <div className="rounded-2xl bg-[#38BDF8]/10 p-4"><Compass size={19} className="text-[#38BDF8]" /><p className="mt-5 text-sm font-semibold">Discover more</p><p className="mt-1 text-xs text-white/45">A space that grows</p></div>
+                  <div className="rounded-lg bg-[#FFB347]/10 p-3"><Code2 size={19} className="text-[#FFB347]" /><p className="mt-5 text-sm font-semibold">Build freely</p><p className="mt-1 text-xs text-white/45">Tools for momentum</p></div>
+                  <div className="rounded-lg bg-[#38BDF8]/10 p-3"><Compass size={19} className="text-[#38BDF8]" /><p className="mt-5 text-sm font-semibold">Discover more</p><p className="mt-1 text-xs text-white/45">A space that grows</p></div>
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-5 -left-5 rounded-2xl border border-white/10 bg-[#24272D] px-4 py-3 shadow-xl">
+            <div className="absolute -bottom-3 -left-3 rounded-lg border border-white/10 bg-[#24272D] px-3 py-2 shadow-xl">
               <p className="text-xs text-white/45">Good things start here</p>
               <p className="mt-1 text-sm font-bold text-[#FFB347]">Make yourself at home.</p>
             </div>
@@ -702,13 +702,13 @@ function WelcomeHome({ setActiveNav }: { setActiveNav: (key: string) => void }) 
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-3 md:grid-cols-3">
         {[
           { icon: Compass, title: "Find your next move", copy: "Explore a growing collection of thoughtful tools made for real life." },
           { icon: Sparkles, title: "Keep it simple", copy: "A calm, focused space to discover what helps you work and create better." },
           { icon: Handshake, title: "Grow with us", copy: "Firebox is being built around people, ideas, and useful connections." },
         ].map(({ icon: Icon, title, copy }) => (
-          <div key={title} className={`rounded-2xl border p-5 transition-transform duration-200 hover:-translate-y-1 ${c.surface} ${c.border}`}>
+          <div key={title} className={`rounded-xl border p-4 transition-transform duration-200 hover:-translate-y-1 ${c.surface} ${c.border}`}>
             <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><Icon size={20} /></div>
             <h2 className={`text-base font-bold ${c.text}`}>{title}</h2>
             <p className={`mt-2 text-sm leading-6 ${c.textMuted}`}>{copy}</p>
@@ -752,7 +752,7 @@ function ServicePage({ service, isFavorite, toggleFavorite, goBack, onOpenPrevie
               <p className={`text-xs font-bold uppercase tracking-[0.16em] ${c.textFaint}`}>Service URL</p>
               <button type="button" onClick={onOpenPreview} className={`mt-2 inline-flex max-w-full items-center gap-2 text-left text-sm font-semibold text-[#FF6B35] hover:text-[#FF5A1F]`}>
                 <Link2 size={15} className="shrink-0" />
-                <span className="truncate">{service.url}</span>
+                <span>Preview live service</span>
               </button>
             </div>
           )}
