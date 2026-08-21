@@ -228,3 +228,46 @@
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out forwards;
 }
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes cursorBlink {
+  0%, 45% { opacity: 1; }
+  46%, 100% { opacity: 0; }
+}
+@keyframes softPulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.96); }
+  50% { opacity: 0.9; transform: scale(1.04); }
+}
+@keyframes floatSoft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes gridDrift {
+  from { background-position: 0 0; }
+  to { background-position: 32px 32px; }
+}
+.animate-revealUp { animation: revealUp 0.55s ease-out both; }
+.animate-cursorBlink { animation: cursorBlink 1s steps(1) infinite; }
+.animate-softPulse { animation: softPulse 2.2s ease-in-out infinite; }
+.animate-glowPulse { animation: glowPulse 5s ease-in-out infinite; }
+.animate-floatSoft { animation: floatSoft 3s ease-in-out infinite; }
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-150 { animation-delay: 150ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.tech-grid {
+  background-image: linear-gradient(rgba(255,255,255,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.055) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom right, black, transparent 78%);
+  animation: gridDrift 16s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-revealUp, .animate-cursorBlink, .animate-softPulse, .animate-glowPulse, .animate-floatSoft, .tech-grid { animation: none !important; }
+}

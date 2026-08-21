@@ -662,74 +662,53 @@ function ServiceDetailModal({ service, close, isFavorite, toggleFavorite }: any)
 
 function WelcomeHome({ setActiveNav }: { setActiveNav: (key: string) => void }) {
   const { c } = useUI();
+  const [typed, setTyped] = useState(0);
+  const command = "discover --what-you-need";
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setTyped(value => value >= command.length ? value : value + 1), 65);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
-    <div className="animate-fadeSlide space-y-6 pb-8">
-      <section className="relative overflow-hidden rounded-2xl border border-[#FFB347]/30 bg-[#17191D] px-6 py-8 text-white shadow-2xl shadow-[#FF6B35]/10 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
-        <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[#FF6B35]/20 blur-3xl" />
-        <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-[#FFB347]/10 blur-3xl" />
-        <div className="relative grid items-center gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="max-w-2xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#FFB347]">
-              <Sparkles size={14} />
-              Your digital home base
-            </div>
-            <h1 className="max-w-xl text-4xl font-black leading-[1.02] tracking-[-0.04em] sm:text-6xl">
-              Welcome to a smarter way to get things done.
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-white/65 sm:text-lg">
-              Firebox brings useful tools, creative spaces, and everyday shortcuts together in one place—so you can spend less time searching and more time moving forward.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button
-                onClick={() => setActiveNav("explore")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] active:scale-[0.98]"
-              >
-                Explore Firebox <ArrowRight size={17} />
-              </button>
-              <button
-                onClick={() => setActiveNav("categories")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-5 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 active:scale-[0.98]"
-              >
-                Browse by category <LayoutGrid size={17} />
-              </button>
+    <div className="animate-fadeSlide space-y-4 pb-6">
+      <section className="home-tech-panel relative overflow-hidden rounded-xl border border-[#FF6B35]/30 bg-[#101317] px-5 py-7 text-white shadow-2xl shadow-[#FF6B35]/10 sm:px-8 sm:py-9 lg:px-10 lg:py-11">
+        <div className="tech-grid absolute inset-0 opacity-40" />
+        <div className="absolute -right-24 -top-28 h-72 w-72 rounded-full bg-[#FF6B35]/15 blur-3xl animate-glowPulse" />
+        <div className="relative grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="max-w-2xl animate-revealUp">
+            <div className="mb-5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[#FFB347]"><span className="h-2 w-2 rounded-full bg-[#86EFAC] animate-softPulse" /> firebox / workspace</div>
+            <h1 className="max-w-2xl text-4xl font-black leading-[1.02] tracking-[-0.05em] sm:text-6xl">Build your next move.</h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-white/65 sm:text-lg">A focused home base for useful tools, creative workflows, and the ideas that keep you moving.</p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <button onClick={() => setActiveNav("explore")} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#FF6B35] px-5 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[#FF5A1F] hover:shadow-[0_0_28px_rgba(255,107,53,0.28)] active:scale-[0.98]">Open workspace <ArrowRight size={17} /></button>
+              <button onClick={() => setActiveNav("categories")} className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/[0.05] px-5 py-3 text-sm font-semibold text-white transition-all hover:border-[#FF6B35]/60 hover:bg-white/10 active:scale-[0.98]">Browse modules <LayoutGrid size={17} /></button>
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-sm lg:justify-self-end">
-            <div className="rounded-xl border border-white/10 bg-white/[0.07] p-3 shadow-2xl backdrop-blur-sm">
-              <div className="flex items-center justify-between border-b border-white/10 px-2 pb-4">
-                <div className="flex items-center gap-2 text-sm font-semibold"><FireboxMark size={20} /> Firebox</div>
-                <span className="flex items-center gap-1.5 text-xs text-[#86EFAC]"><span className="h-1.5 w-1.5 rounded-full bg-[#86EFAC]" /> Ready for you</span>
-              </div>
-              <div className="space-y-3 p-2 pt-5">
-                <div className="rounded-lg bg-white/[0.08] p-3">
-                  <div className="flex items-center gap-3"><div className="rounded-xl bg-[#FF6B35]/15 p-2.5 text-[#FF8A5B]"><MessageCircle size={20} /></div><div><p className="text-sm font-semibold">Start with what matters</p><p className="mt-1 text-xs text-white/45">Find your next useful idea</p></div></div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-[#FFB347]/10 p-3"><Code2 size={19} className="text-[#FFB347]" /><p className="mt-5 text-sm font-semibold">Build freely</p><p className="mt-1 text-xs text-white/45">Tools for momentum</p></div>
-                  <div className="rounded-lg bg-[#38BDF8]/10 p-3"><Compass size={19} className="text-[#38BDF8]" /><p className="mt-5 text-sm font-semibold">Discover more</p><p className="mt-1 text-xs text-white/45">A space that grows</p></div>
-                </div>
+          <div className="relative animate-revealUp animation-delay-150">
+            <div className="overflow-hidden rounded-lg border border-white/15 bg-[#0B0E11] shadow-2xl">
+              <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3 font-mono text-[11px] text-white/45"><span className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]" /><span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" /><span className="h-2.5 w-2.5 rounded-full bg-[#27C93F]" /><span className="ml-2">firebox-terminal</span></div>
+              <div className="space-y-4 p-5 font-mono text-xs sm:text-sm">
+                <div><span className="text-[#86EFAC]">user@firebox</span><span className="text-white/45">:~$ </span><span className="text-white">{command.slice(0, typed)}</span><span className="ml-0.5 inline-block h-4 w-2 bg-[#FF6B35] align-middle animate-cursorBlink" /></div>
+                <div className="space-y-2 text-white/55"><p><span className="text-[#38BDF8]">status</span> <span className="text-[#86EFAC]">ready</span></p><p><span className="text-[#38BDF8]">modules</span> <span className="text-[#FFB347]">{"{"}</span> tools, ideas, momentum <span className="text-[#FFB347]">{"}"}</span></p><p><span className="text-[#38BDF8]">next</span> <span className="text-white">your best work</span></p></div>
+                <div className="flex items-center gap-2 border-t border-white/10 pt-4 text-[#FFB347]"><FireboxMark size={16} /> <span>Everything useful, one place.</span></div>
               </div>
             </div>
-            <div className="absolute -bottom-3 -left-3 rounded-lg border border-white/10 bg-[#24272D] px-3 py-2 shadow-xl">
-              <p className="text-xs text-white/45">Good things start here</p>
-              <p className="mt-1 text-sm font-bold text-[#FFB347]">Make yourself at home.</p>
-            </div>
+            <div className="absolute -bottom-3 -left-3 rounded-md border border-[#FFB347]/25 bg-[#1D2025] px-3 py-2 font-mono text-[11px] text-[#FFB347] shadow-xl animate-floatSoft">// make it useful</div>
           </div>
         </div>
       </section>
 
       <section className="grid gap-3 md:grid-cols-3">
         {[
-          { icon: Compass, title: "Find your next move", copy: "Explore a growing collection of thoughtful tools made for real life." },
-          { icon: Sparkles, title: "Keep it simple", copy: "A calm, focused space to discover what helps you work and create better." },
-          { icon: Handshake, title: "Grow with us", copy: "Firebox is being built around people, ideas, and useful connections." },
-        ].map(({ icon: Icon, title, copy }) => (
-          <div key={title} className={`rounded-xl border p-4 transition-transform duration-200 hover:-translate-y-1 ${c.surface} ${c.border}`}>
-            <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><Icon size={20} /></div>
-            <h2 className={`text-base font-bold ${c.text}`}>{title}</h2>
-            <p className={`mt-2 text-sm leading-6 ${c.textMuted}`}>{copy}</p>
+          { icon: Code2, label: "01 / discover", title: "Find the right tool", copy: "Search a growing system of services built for real work." },
+          { icon: Terminal, label: "02 / build", title: "Keep your flow", copy: "Move from idea to action without leaving your workspace." },
+          { icon: GitBranch, label: "03 / evolve", title: "Grow with Firebox", copy: "New tools and useful connections ship into the system." },
+        ].map(({ icon: Icon, label, title, copy }, index) => (
+          <div key={title} className={`home-tech-card animate-revealUp animation-delay-${(index + 1) * 100} rounded-lg border p-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#FF6B35]/45 hover:shadow-[0_10px_30px_rgba(255,107,53,0.08)] ${c.surface} ${c.border}`}>
+            <div className="mb-5 flex items-center justify-between"><div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FF6B35]/10 text-[#FF6B35]"><Icon size={18} /></div><span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#FF6B35]">{label}</span></div>
+            <h2 className={`text-base font-bold ${c.text}`}>{title}</h2><p className={`mt-2 text-sm leading-6 ${c.textMuted}`}>{copy}</p>
           </div>
         ))}
       </section>
